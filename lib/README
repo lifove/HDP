@@ -1,0 +1,9 @@
+Required libraries
+
+- commons-math3-3.3.jar  
+- commons-cli-1.2.jar
+- guava-14.0.1.jar
+- javacsv.jar  
+- RserveEngine.jar
+- REngine.jar  
+- weka3.7.9.jar
