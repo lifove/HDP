@@ -80,6 +80,7 @@ public class Runner {
 		        		+ "However, if the data file is labeled, "
 		        		+ "it will show prediction results in terms of precision, recall, and f-measure for evaluation puerpose.")
 		        .hasArg()
+		        .required()
 		        .argName("attribute value")
 		        .build());
 
