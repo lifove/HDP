@@ -21,7 +21,7 @@ public class Runner {
 		new Runner().runner(args);
 	}
 
-	private void runner(String[] args) {
+	void runner(String[] args) {
 		
 		Options options = createOptions();
 		
