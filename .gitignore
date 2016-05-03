@@ -1,6 +1,4 @@
-# Created by https://www.gitignore.io/api/ava,gradle
-
-#!! ERROR: ava is undefined. Use list command to see defined gitignore types !!#
+# Created by https://www.gitignore.io/api/java,gradle
 
 ### Gradle ###
 .gradle
@@ -11,6 +9,9 @@ gradle-app.setting
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
 
 # Eclipse
 .classpath
