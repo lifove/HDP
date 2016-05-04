@@ -7,12 +7,17 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import net.lifove.hdp.util.Utils;
+import weka.core.Instances;
+
 public class Runner {
 	
 	String sourcePath;
 	String targetPath;
-	String labelName;
-	String posLabelValue;
+	String srclabelName;
+	String srcPosLabelValue;
+	String tarlabelName;
+	String tarPosLabelValue;
 	double cutoff = 0.05;
 	boolean help = false;
 	boolean suppress = false;
@@ -30,6 +35,11 @@ public class Runner {
 				printHelp(options);
 				return;
 			}
+			
+			// load source and target arff files
+			// load an arff file
+			Instances source = Utils.loadArff(sourcePath, srclabelName);
+			Instances target = Utils.loadArff(targetPath, tarlabelName);
 		}
 	}
 	
@@ -67,17 +77,29 @@ public class Runner {
 		        .desc("Suppress detailed prediction results. Only works when the arff data is labeled.")
 		        .build());
 		
-		options.addOption(Option.builder("l").longOpt("lable")
+		options.addOption(Option.builder("sl").longOpt("srclable")
 		        .desc("Label (Class attrubite) name")
 		        .hasArg()
-		        .argName("attribute name")
+		        .argName("source attribute name")
 		        .required()
 		        .build());
 		
-		options.addOption(Option.builder("p").longOpt("poslabel")
-		        .desc("String value of buggy label. Since CLA/CLAMI works for unlabeld data (in case of weka arff files, labeled as '?',"
-		        		+ " it is not necessary to use this option. "
-		        		+ "However, if the data file is labeled, "
+		options.addOption(Option.builder("tl").longOpt("tarlable")
+		        .desc("Label (Class attrubite) name")
+		        .hasArg()
+		        .argName("target attribute name")
+		        .required()
+		        .build());
+		
+		options.addOption(Option.builder("sp").longOpt("srcposlabel")
+		        .desc("String value of buggy label in source data.")
+		        .hasArg()
+		        .required()
+		        .argName("attribute value")
+		        .build());
+		
+		options.addOption(Option.builder("tp").longOpt("tarposlabel")
+		        .desc("String value of buggy label in taget data. If the data file is labeled, "
 		        		+ "it will show prediction results in terms of precision, recall, and f-measure for evaluation puerpose.")
 		        .hasArg()
 		        .required()
@@ -97,8 +119,10 @@ public class Runner {
 
 			sourcePath = cmd.getOptionValue("s");
 			targetPath = cmd.getOptionValue("t");
-			labelName = cmd.getOptionValue("l");
-			posLabelValue = cmd.getOptionValue("p");
+			srclabelName = cmd.getOptionValue("sl");
+			srcPosLabelValue = cmd.getOptionValue("sp");
+			tarlabelName = cmd.getOptionValue("tl");
+			tarPosLabelValue = cmd.getOptionValue("tp");
 			if(cmd.getOptionValue("c") != null)
 				cutoff = Double.parseDouble(cmd.getOptionValue("c"));
 			help = cmd.hasOption("h");
