@@ -40,6 +40,9 @@ public class Runner {
 			// load an arff file
 			Instances source = Utils.loadArff(sourcePath, srclabelName);
 			Instances target = Utils.loadArff(targetPath, tarlabelName);
+			
+			if(source!=null && target!=null)
+				new MetricMatcher(source,target,10).match();
 		}
 	}
 	

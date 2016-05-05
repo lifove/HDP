@@ -31,7 +31,11 @@ public class RunnerTest {
 		assertEquals(runner.cutoff,0.05,0);
 		assertEquals(runner.help,false);
 		assertEquals(runner.suppress,false);
-
+		
+		args2[1] = "data/sample.arff";
+		args2[3] = "data/sample.arff";
+		
+		runner.runner(args2);
 	}
 
 }
