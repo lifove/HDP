@@ -5,7 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import weka.filters.supervised.attribute.AttributeSelection;
+import weka.attributeSelection.ChiSquaredAttributeEval;
+import weka.attributeSelection.Ranker;
 import weka.core.Instances;
+import weka.filters.Filter;
 
 public class Utils {
 	/**
@@ -31,5 +35,27 @@ public class Utils {
 		}
 
 		return instances;
+	}
+	
+	static public Instances featrueSelectionBySignificance(Instances data,int numSelected){
+		Instances newData = null;
+
+		AttributeSelection filter = new AttributeSelection();  // package weka.filters.supervised.attribute!
+		ChiSquaredAttributeEval eval = new ChiSquaredAttributeEval();
+		Ranker search = new Ranker();
+		//search.setThreshold(-1.7976931348623157E308);
+		search.setNumToSelect(numSelected);
+		filter.setEvaluator(eval);
+		filter.setSearch(search);
+		try {
+			filter.setInputFormat(data);
+
+			// generate new data
+			newData = Filter.useFilter(data, filter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return newData;
 	}
 }

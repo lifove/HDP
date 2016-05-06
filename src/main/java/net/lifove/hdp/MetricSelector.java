@@ -1,5 +1,6 @@
 package net.lifove.hdp;
 
+import net.lifove.hdp.util.Utils;
 import weka.core.Instances;
 
 public class MetricSelector {
@@ -10,6 +11,12 @@ public class MetricSelector {
 	}
 	
 	public Instances getNewInstances(){
-		return instances;
+		// select 15% of metrics
+		int numSelectedMetrics = (int) ((int)(instances.numAttributes()-1)*0.15);
+		if(numSelectedMetrics==0){
+			numSelectedMetrics=1;
+		}
+
+		return Utils.featrueSelectionBySignificance(instances,numSelectedMetrics);
 	}
 }
