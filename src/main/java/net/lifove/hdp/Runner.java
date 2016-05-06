@@ -43,7 +43,7 @@ public class Runner {
 			Instances target = Utils.loadArff(targetPath, tarlabelName);
 			
 			if(source!=null && target!=null)
-				new MetricMatcher(source,target,numThreads).match();
+				new MetricMatcher(source,target,cutoff,numThreads).match();
 		}
 	}
 	

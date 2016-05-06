@@ -19,7 +19,7 @@ public class RunnerTest {
 		assertEquals(runner.sourcePath,null); // because of missed options
 		
 		
-		String[] args2 = {"-s", "source.arff", "-t", "target.arff", "-sl", "class", "-sp", "buggy","-tl", "class", "-tp", "buggy"}; 
+		String[] args2 = {"-s", "source.arff", "-t", "target.arff", "-sl", "class", "-sp", "buggy","-tl", "class", "-tp", "buggy","-c","0.58"}; 
 		runner.runner(args2);
 		
 		assertEquals(runner.sourcePath,args2[1]);
@@ -28,12 +28,12 @@ public class RunnerTest {
 		assertEquals(runner.srcPosLabelValue,args2[7]);
 		assertEquals(runner.tarlabelName,args2[9]);
 		assertEquals(runner.tarPosLabelValue,args2[11]);
-		assertEquals(runner.cutoff,0.05,0);
+		assertEquals(runner.cutoff,0.58,0);
 		assertEquals(runner.help,false);
 		assertEquals(runner.suppress,false);
 		
 		args2[1] = "data/sample.arff";
-		args2[3] = "data/sample.arff";
+		args2[3] = "data/sample2.arff";
 		
 		runner.runner(args2);
 	}
