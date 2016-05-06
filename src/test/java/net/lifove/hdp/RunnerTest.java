@@ -38,11 +38,11 @@ public class RunnerTest {
 		
 		runner.runner(args2);
 		
-		double[] sample1 ={1,2,3,4,6,7,8};
-		double[] sample2 ={1,2,3,4,8,7,6};
+		double[] sample1 ={1,2,3,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+		double[] sample2 ={19,20,3,4,8,7,6,1,10,11,12,13,14,15,16,17,18,9,2};
 		System.out.println(new KolmogorovSmirnovTest().kolmogorovSmirnovTest(sample1, sample2));
 		
-		double[] sample3 ={1,2,3,4,5,6,7};
+		double[] sample3 ={1,3,20,15,5,7,9,11,13};
 		System.out.println(new KolmogorovSmirnovTest().kolmogorovSmirnovTest(sample1, sample3));
 	}
 
