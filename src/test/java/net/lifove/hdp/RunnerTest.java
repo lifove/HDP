@@ -2,6 +2,7 @@ package net.lifove.hdp;
 
 import static org.junit.Assert.*;
 
+import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import org.junit.Test;
 
 public class RunnerTest {
@@ -36,6 +37,13 @@ public class RunnerTest {
 		args2[3] = "data/sample2.arff";
 		
 		runner.runner(args2);
+		
+		double[] sample1 ={1,2,3,4,6,7,8};
+		double[] sample2 ={1,2,3,4,8,7,6};
+		System.out.println(new KolmogorovSmirnovTest().kolmogorovSmirnovTest(sample1, sample2));
+		
+		double[] sample3 ={1,2,3,4,5,6,7};
+		System.out.println(new KolmogorovSmirnovTest().kolmogorovSmirnovTest(sample1, sample3));
 	}
 
 }
