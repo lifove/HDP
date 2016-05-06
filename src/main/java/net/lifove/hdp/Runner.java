@@ -21,6 +21,7 @@ public class Runner {
 	double cutoff = 0.05;
 	boolean help = false;
 	boolean suppress = false;
+	int numThreads = 4;
 
 	public static void main(String[] args) {
 		new Runner().runner(args);
@@ -42,7 +43,7 @@ public class Runner {
 			Instances target = Utils.loadArff(targetPath, tarlabelName);
 			
 			if(source!=null && target!=null)
-				new MetricMatcher(source,target,10).match();
+				new MetricMatcher(source,target,numThreads).match();
 		}
 	}
 	
@@ -74,6 +75,12 @@ public class Runner {
 		        .desc("Cutoff for KSAnalyzer. Default is 0.05.")
 		        .hasArg()
 		        .argName("cutoff")
+		        .build());
+		
+		options.addOption(Option.builder("n").longOpt("numthread")
+		        .desc("The number of threads when computing metric matching scores. Default is 4.")
+		        .hasArg()
+		        .argName("number")
 		        .build());
 		
 		options.addOption(Option.builder("r").longOpt("suppress")
@@ -128,6 +135,9 @@ public class Runner {
 			tarPosLabelValue = cmd.getOptionValue("tp");
 			if(cmd.getOptionValue("c") != null)
 				cutoff = Double.parseDouble(cmd.getOptionValue("c"));
+			if(cmd.getOptionValue("n") != null)
+				numThreads = Integer.parseInt(cmd.getOptionValue("n"));
+			
 			help = cmd.hasOption("h");
 			suppress = cmd.hasOption("r");
 
