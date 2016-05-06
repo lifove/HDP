@@ -42,8 +42,10 @@ public class Runner {
 			Instances source = Utils.loadArff(sourcePath, srclabelName);
 			Instances target = Utils.loadArff(targetPath, tarlabelName);
 			
-			if(source!=null && target!=null)
+			if(source!=null && target!=null){
+				source = new MetricSelector(source).getNewInstances();
 				new MetricMatcher(source,target,cutoff,numThreads).match();
+			}
 		}
 	}
 	
