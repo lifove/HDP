@@ -44,6 +44,20 @@ public class RunnerTest {
 		args2[3] = "data/sample3.arff";
 		runner.runner(args2);
 		
+		
+		args2[1] = "../../Documents/HKUST/Research/CDDP/workspace/CrossPredictionSimulator/data/promise/ant-1.3.arff";
+		args2[5] = "bug";
+		
+		args2[3] = "../../Documents/HKUST/Research/CDDP/workspace/CrossPredictionSimulator/data/SOFTLAB/ar5.arff";
+		args2[9] = "defects";
+		args2[11] = "true";
+		
+		
+		args2[13] = "0.05";
+		args2[14] = "";
+		runner.runner(args2);
+		
+		
 		double[] sample1 ={1,2,3,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
 		double[] sample2 ={19,20,3,4,8,7,6,1,10,11,12,13,14,15,16,17,18,9,2};
 		System.out.println(new KolmogorovSmirnovTest().kolmogorovSmirnovTest(sample1, sample2));
