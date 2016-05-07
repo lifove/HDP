@@ -70,6 +70,12 @@ public class Utils {
 		return newData;
 	}
 	
+	/**
+	 * Print prediction result of each instance
+	 * @param target
+	 * @param classifier
+	 * @throws Exception
+	 */
 	static public void printPredictionResultForEachInstance(Instances target, Classifier classifier) throws Exception {
 		// show prediction result for each instance
 		for(int instIdx = 0; instIdx < target.numInstances(); instIdx++){
