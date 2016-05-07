@@ -81,6 +81,9 @@ public class Runner {
 						e.printStackTrace();
 					}
 				}
+				else{
+					System.err.println("There are no matched metrics! Source and target datasets are too different to do HDP!");
+				}
 			}
 		}
 	}
