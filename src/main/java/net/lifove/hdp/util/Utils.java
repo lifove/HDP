@@ -80,7 +80,7 @@ public class Utils {
 		// show prediction result for each instance
 		for(int instIdx = 0; instIdx < target.numInstances(); instIdx++){
 			double predictedLabelIdx = classifier.classifyInstance(target.get(instIdx));
-				System.out.println("HDP: Instance " + (instIdx+1) + " predicted as, " + 
+				System.out.println("HDP: Instance " + (instIdx+1) + " predicted as " + 
 						target.classAttribute().value((int)predictedLabelIdx));
 		}
 	}
