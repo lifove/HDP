@@ -81,7 +81,8 @@ public class Utils {
 		for(int instIdx = 0; instIdx < target.numInstances(); instIdx++){
 			double predictedLabelIdx = classifier.classifyInstance(target.get(instIdx));
 				System.out.println("HDP: Instance " + (instIdx+1) + " predicted as " + 
-						target.classAttribute().value((int)predictedLabelIdx));
+						target.classAttribute().value((int)predictedLabelIdx) +
+						" (Actual: " + target.instance(instIdx).stringValue(target.classIndex()) + ")");
 		}
 	}
 	
@@ -118,6 +119,8 @@ public class Utils {
 				vals[attributes.size()-1] = Utils.dblPosValue;
 			else if(currentInstaceLabel.equals(getNegLabel(instances,labelPos)))
 				vals[attributes.size()-1] = Utils.dblNegValue;
+			else
+				vals[attributes.size()-1] = Double.NaN;
 			
 			newInstnaces.add(new DenseInstance(1.0, vals));
 		}
