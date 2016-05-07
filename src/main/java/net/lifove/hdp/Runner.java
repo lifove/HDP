@@ -10,6 +10,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import net.lifove.hdp.util.Utils;
+import weka.classifiers.Classifier;
+import weka.classifiers.evaluation.Evaluation;
 import weka.core.Instances;
 
 public class Runner {
@@ -52,6 +54,24 @@ public class Runner {
 				if(matchedMetrics.size()>0){
 					source = Utils.getNewInstancesByMatchedMetrics(source, matchedMetrics, true, srclabelName, srcPosLabelValue);
 					target = Utils.getNewInstancesByMatchedMetrics(target, matchedMetrics, false, tarlabelName, tarPosLabelValue);
+					
+					String mlAlgorithm = "weka.classifiers.functions.Logistic";
+					int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(Utils.strPos);
+					try {
+						Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, mlAlgorithm, null);
+						classifier.buildClassifier(source);
+						
+						Evaluation eval = new Evaluation(source);
+						eval.evaluateModel(classifier, target);
+						
+						System.out.println("AUC: " + eval.areaUnderPRC(posClassValueIndex));
+						System.out.println("Precision: " + eval.precision(posClassValueIndex));
+						System.out.println("Recall: " + eval.recall(posClassValueIndex));
+						System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
