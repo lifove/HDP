@@ -20,7 +20,7 @@ public class RunnerTest {
 		assertEquals(runner.sourcePath,null); // because of missed options
 		
 		
-		String[] args2 = {"-s", "source.arff", "-t", "target.arff", "-sl", "class", "-sp", "buggy","-tl", "class", "-tp", "buggy","-c","0.05"}; 
+		String[] args2 = {"-s", "source.arff", "-t", "target.arff", "-sl", "class", "-sp", "buggy","-tl", "class", "-tp", "buggy","-c","0.05"," "}; 
 		runner.runner(args2);
 		
 		assertEquals(runner.sourcePath,args2[1]);
@@ -36,6 +36,12 @@ public class RunnerTest {
 		args2[1] = "data/sample.arff";
 		args2[3] = "data/sample2.arff";
 		
+		runner.runner(args2);
+		
+		args2[14] = "-r";
+		runner.runner(args2);
+		
+		args2[3] = "data/sample3.arff";
 		runner.runner(args2);
 		
 		double[] sample1 ={1,2,3,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};

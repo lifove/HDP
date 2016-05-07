@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.attributeSelection.ChiSquaredAttributeEval;
 import weka.attributeSelection.Ranker;
+import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -69,6 +70,15 @@ public class Utils {
 		return newData;
 	}
 	
+	static public void printPredictionResultForEachInstance(Instances target, Classifier classifier) throws Exception {
+		// show prediction result for each instance
+		for(int instIdx = 0; instIdx < target.numInstances(); instIdx++){
+			double predictedLabelIdx = classifier.classifyInstance(target.get(instIdx));
+				System.out.println("HDP: Instance " + (instIdx+1) + " predicted as, " + 
+						target.classAttribute().value((int)predictedLabelIdx));
+		}
+	}
+	
 	/**
 	 * Get new instances based on matched metrics
 	 * @param instances
@@ -100,7 +110,7 @@ public class Utils {
 			String currentInstaceLabel = instance.stringValue(instances.attribute(labelName));
 			if(currentInstaceLabel.equals(labelPos))
 				vals[attributes.size()-1] = Utils.dblPosValue;
-			else
+			else if(currentInstaceLabel.equals(getNegLabel(instances,labelPos)))
 				vals[attributes.size()-1] = Utils.dblNegValue;
 			
 			newInstnaces.add(new DenseInstance(1.0, vals));
@@ -109,6 +119,27 @@ public class Utils {
 		newInstnaces.setClass(newInstnaces.attribute(Utils.labelName));
 		
 		return newInstnaces;
+	}
+	
+	/**
+	 * Get the negative label string value from the positive label value
+	 * @param instances
+	 * @param positiveLabel
+	 * @return
+	 */
+	static public String getNegLabel(Instances instances, String positiveLabel){
+		if(instances.classAttribute().numValues()==2){
+			int posIndex = instances.classAttribute().indexOfValue(positiveLabel);
+			if(posIndex==0)
+				return instances.classAttribute().value(1);
+			else
+				return instances.classAttribute().value(0);
+		}
+		else{
+			System.err.println("Class labels must be binary");
+			System.exit(0);
+		}
+		return null;
 	}
 	
 	/**

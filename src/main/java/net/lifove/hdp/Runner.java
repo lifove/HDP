@@ -61,13 +61,21 @@ public class Runner {
 						Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, mlAlgorithm, null);
 						classifier.buildClassifier(source);
 						
-						Evaluation eval = new Evaluation(source);
-						eval.evaluateModel(classifier, target);
-						
-						System.out.println("AUC: " + eval.areaUnderPRC(posClassValueIndex));
-						System.out.println("Precision: " + eval.precision(posClassValueIndex));
-						System.out.println("Recall: " + eval.recall(posClassValueIndex));
-						System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
+						if(target.attributeStats(target.classIndex()).nominalCounts[1]!=0){			
+							
+							if(!suppress)
+								Utils.printPredictionResultForEachInstance(target, classifier);
+							
+							Evaluation eval = new Evaluation(source);
+							eval.evaluateModel(classifier, target);
+
+							System.out.println("AUC: " + eval.areaUnderPRC(posClassValueIndex));
+							System.out.println("Precision: " + eval.precision(posClassValueIndex));
+							System.out.println("Recall: " + eval.recall(posClassValueIndex));
+							System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
+						}else{
+							Utils.printPredictionResultForEachInstance(target, classifier);
+						}
 						
 					} catch (Exception e) {
 						e.printStackTrace();
