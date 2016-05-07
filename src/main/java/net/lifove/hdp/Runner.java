@@ -12,6 +12,7 @@ import org.apache.commons.cli.Options;
 import net.lifove.hdp.util.Utils;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
+import weka.classifiers.functions.Logistic;
 import weka.core.Instances;
 
 public class Runner {
@@ -55,10 +56,10 @@ public class Runner {
 					source = Utils.getNewInstancesByMatchedMetrics(source, matchedMetrics, true, srclabelName, srcPosLabelValue);
 					target = Utils.getNewInstancesByMatchedMetrics(target, matchedMetrics, false, tarlabelName, tarPosLabelValue);
 					
-					String mlAlgorithm = "weka.classifiers.functions.Logistic";
+					//String mlAlgorithm = "weka.classifiers.functions.Logistic";
 					int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(Utils.strPos);
 					try {
-						Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, mlAlgorithm, null);
+						Classifier classifier = (Classifier) new Logistic();//weka.core.Utils.forName(Classifier.class, mlAlgorithm, null);
 						classifier.buildClassifier(source);
 						
 						if(target.attributeStats(target.classIndex()).nominalCounts[1]!=0){			
