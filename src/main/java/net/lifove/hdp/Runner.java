@@ -1,5 +1,7 @@
 package net.lifove.hdp;
 
+import java.util.ArrayList;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -44,7 +46,13 @@ public class Runner {
 			
 			if(source!=null && target!=null){
 				source = new MetricSelector(source).getNewInstances();
-				new MetricMatcher(source,target,cutoff,numThreads).match();
+				ArrayList<String> matchedMetrics = new MetricMatcher(source,target,cutoff,numThreads).match();
+				
+				// generate new datasets
+				if(matchedMetrics.size()>0){
+					source = Utils.getNewInstancesByMatchedMetrics(source, matchedMetrics, true, srclabelName, srcPosLabelValue);
+					target = Utils.getNewInstancesByMatchedMetrics(target, matchedMetrics, false, tarlabelName, tarPosLabelValue);
+				}
 			}
 		}
 	}

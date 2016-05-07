@@ -22,7 +22,7 @@ public class MetricMatcher {
 		this.threadPoolSize = threadPoolSize;
 	}
 
-	public void match() {
+	public ArrayList<String> match() {
 		ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
 		
 		ArrayList<Runnable> threads = new ArrayList<Runnable>();
@@ -65,11 +65,15 @@ public class MetricMatcher {
 			String[] pairs = key.split("-");
 			mwb.setWeight(Integer.parseInt(pairs[0]), Integer.parseInt(pairs[1]),matchingScores.get(key));
 		}
+		
+		ArrayList<String> matchedMetrics = new ArrayList<String>();
 		int[] matching = mwb.getMatching(); // index is srcMetricIdx and value is tarMetricIdx
 		for(int srcMetricIdx=0;srcMetricIdx < matching.length;srcMetricIdx++){
 			String key = srcMetricIdx + "-" + matching[srcMetricIdx];
 			if(matching[srcMetricIdx]>=0 && matchingScores.get(key) > cutoff )
-				System.out.println(srcMetricIdx + "-" + matching[srcMetricIdx] + ": " + matchingScores.get(key));
+				matchedMetrics.add(key);
 		}
+		
+		return matchedMetrics;
 	}
 }

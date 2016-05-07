@@ -4,10 +4,14 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.attributeSelection.ChiSquaredAttributeEval;
 import weka.attributeSelection.Ranker;
+import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 
@@ -37,7 +41,13 @@ public class Utils {
 		return instances;
 	}
 	
-	static public Instances featrueSelectionBySignificance(Instances data,int numSelected){
+	/**
+	 * Select features based on chi-squared attribute selection
+	 * @param data instances
+	 * @param numSelected the number features to be selected.
+	 * @return
+	 */
+	static public Instances featrueSelectionByChiSquare(Instances data,int numSelected){
 		Instances newData = null;
 
 		AttributeSelection filter = new AttributeSelection();  // package weka.filters.supervised.attribute!
@@ -58,4 +68,85 @@ public class Utils {
 
 		return newData;
 	}
+	
+	/**
+	 * Get new instances based on matched metrics
+	 * @param instances
+	 * @param matchedAttrs
+	 * @param isSource
+	 * @param labelName
+	 * @param labelPos
+	 * @return
+	 */
+	static public Instances getNewInstancesByMatchedMetrics(Instances instances, ArrayList<String> matchedAttrs,boolean isSource,
+			String labelName,String labelPos){
+		ArrayList<String> matchedAttributes = matchedAttrs;
+		
+		// create attribute information
+		ArrayList<Attribute> attributes = createAttributeInfoForClassfication(matchedAttributes.size()+1); //for label +1
+		Instances newInstnaces = new Instances("newData", attributes, 0);
+		
+		for(Instance instance:instances){
+
+			double[] vals = new double[attributes.size()];
+			
+			// process attribute values except for label
+			for(int i=0; i<attributes.size()-1;i++){
+				String[] labels = matchedAttributes.get(i).split("-");
+				int[] intLabels = {Integer.parseInt(labels[0]),Integer.parseInt(labels[1])};
+				vals[i] = isSource?instance.value(intLabels[0]):instance.value(intLabels[1]);
+			}
+			// assign label value
+			String currentInstaceLabel = instance.stringValue(instances.attribute(labelName));
+			if(currentInstaceLabel.equals(labelPos))
+				vals[attributes.size()-1] = Utils.dblPosValue;
+			else
+				vals[attributes.size()-1] = Utils.dblNegValue;
+			
+			newInstnaces.add(new DenseInstance(1.0, vals));
+		}
+		
+		newInstnaces.setClass(newInstnaces.attribute(Utils.labelName));
+		
+		return newInstnaces;
+	}
+	
+	/**
+	 * Create a list of attributes for the given number of attributes
+	 * @param numOfAttributes The number of attributes to create
+	 * @return ArrayList of Attribute
+	 */
+	static public ArrayList<Attribute> createAttributeInfoForClassfication(long numOfAttributes){
+		// create attribute information
+		ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+
+		// add attributes from matchedAttribute
+		for(int i=0; i<numOfAttributes-1;i++){
+			Attribute attribute = new Attribute("attr" + (i+1));
+			attributes.add(attribute);
+		}
+
+		//add label as the last attribute
+		ArrayList<String> labels = new ArrayList<String>();
+		labels.add(strPos);
+		labels.add(strNeg);
+		Attribute label = new Attribute(labelName, labels);
+		attributes.add(label);
+
+		dblPosValue = attributes.get(attributes.size()-1).indexOfValue(strPos);
+		dblNegValue = attributes.get(attributes.size()-1).indexOfValue(strNeg);
+
+		return attributes;
+	}
+	
+	/** String value of the positive label */
+	static final public String strPos = "buggy";
+	/** String value of the negative label */
+	static final public String strNeg = "clean";
+	/** String value of label attribute */
+	static final public String labelName = "label";
+	/** double value of the positive label */
+	static public double dblPosValue = 0;
+	/** double value of the positive label */
+	static public double dblNegValue = 1;
 }
