@@ -27,6 +27,8 @@ public class Runner {
 	boolean help = false;
 	boolean suppress = false;
 	int numThreads = 4;
+	
+	String resultString = "";
 
 	public static void main(String[] args) {
 		new Runner().runner(args);
@@ -34,6 +36,10 @@ public class Runner {
 
 	void runner(String[] args) {
 		
+		conductHDP(args,true);
+	}
+
+	private void conductHDP(String[] args,boolean printOutResult) {
 		Options options = createOptions();
 		
 		if(parseOptions(options, args)){
@@ -64,16 +70,22 @@ public class Runner {
 						
 						if(target.attributeStats(target.classIndex()).nominalCounts[1]!=0){			
 							
-							if(!suppress)
+							if(!suppress && printOutResult)
 								Utils.printPredictionResultForEachInstance(target, classifier);
 							
 							Evaluation eval = new Evaluation(source);
 							eval.evaluateModel(classifier, target);
 
-							System.out.println("AUC: " + eval.areaUnderPRC(posClassValueIndex));
-							System.out.println("Precision: " + eval.precision(posClassValueIndex));
-							System.out.println("Recall: " + eval.recall(posClassValueIndex));
-							System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
+							if(printOutResult){
+								System.out.println("AUC: " + eval.areaUnderPRC(posClassValueIndex));
+								System.out.println("Precision: " + eval.precision(posClassValueIndex));
+								System.out.println("Recall: " + eval.recall(posClassValueIndex));
+								System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
+							}
+							
+							resultString = eval.precision(posClassValueIndex) + "," + eval.recall(posClassValueIndex) +
+									eval.fMeasure(posClassValueIndex) + eval.areaUnderPRC(posClassValueIndex);
+							
 						}else{
 							Utils.printPredictionResultForEachInstance(target, classifier);
 						}
@@ -197,5 +209,10 @@ public class Runner {
 		String header = "Execute heterogeneous defect prediction. On Windows, use HDP.bat instead of ./HDP";
 		String footer ="\nPlease report issues at https://github.com/lifove/HDP/issues";
 		formatter.printHelp( "./HDP", header, options, footer, true);
+	}
+
+	public String getStringHDPResult(String[] args) {		
+		conductHDP(args,false);
+		return resultString;
 	}
 }
