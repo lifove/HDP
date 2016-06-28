@@ -83,8 +83,8 @@ public class Runner {
 								System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
 							}
 							
-							resultString = eval.precision(posClassValueIndex) + "," + eval.recall(posClassValueIndex) +
-									eval.fMeasure(posClassValueIndex) + eval.areaUnderPRC(posClassValueIndex);
+							resultString = eval.precision(posClassValueIndex) + "," + eval.recall(posClassValueIndex) + "," +
+									eval.fMeasure(posClassValueIndex) + "," + eval.areaUnderPRC(posClassValueIndex);
 							
 						}else{
 							Utils.printPredictionResultForEachInstance(target, classifier);
