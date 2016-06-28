@@ -2,6 +2,16 @@ package net.lifove.hdp;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import org.junit.Test;
 
@@ -111,20 +121,66 @@ public class BatchRunnerTest {
 		
 		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 		
-		for(String target:projects){
-			for(String source:projects){
-				if(source.equals(target))
-					continue;
-				
+		String cutoff = "0.05";
 
-				String[] args = {"-s", pathToDataset +  source, "-t",  pathToDataset + target, "-sl", "class", "-sp", "buggy","-tl", "class", "-tp", "buggy","-c","0.05","-r"}; 
-				runner.getStringHDPResult(args);
-				
-				String result = runner.getStringHDPResult(args);
-				
-				System.out.println(source + "," + target + "," + result );
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/SingleHDP_C" + cutoff +".txt");
+		
+		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+			
+			for(String target:projects){
+				for(String source:projects){
+					if(source.equals(target))
+						continue;
+					
+					String[] srclabelInfo = getLabelInfo(source);
+					String[] tarlabelInfo = getLabelInfo(target);
+					
+					String[] args = {"-s", pathToDataset +  source, "-t",  pathToDataset + target,
+							"-sl", srclabelInfo[0], "-sp", srclabelInfo[1],
+							"-tl", tarlabelInfo[0], "-tp", tarlabelInfo[1],"-c",cutoff,"-r"}; 
+					runner.getStringHDPResult(args);
+					
+					String result = runner.getStringHDPResult(args);
+					
+					writer.write(source + "," + target + "," + result + "\n" );
+				}
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
+	private String[] getLabelInfo(String path) {
+		
+		String[] labelInfo = new String[2];
+		
+		String group = path.substring(0, path.indexOf("/"));
+		
+		if(group.equals("ReLink")){
+			labelInfo[0] = "isDefective";
+			labelInfo[1] = "TRUE";
+		}
+		
+		if(group.equals("NASA")){
+			labelInfo[0] = "Defective";
+			labelInfo[1] = "Y";
+		}
+		
+		if(group.equals("AEEEM")){
+			labelInfo[0] = "class";
+			labelInfo[1] = "buggy";
+		}
+		
+		if(group.equals("SOFTLAB")){
+			labelInfo[0] = "defects";
+			labelInfo[1] = "true";
+		}
+		
+		if(group.equals("CK")){
+			labelInfo[0] = "class";
+			labelInfo[1] = "buggy";
+		}
+		
+		return labelInfo;
+	}
 }
