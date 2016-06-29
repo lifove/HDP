@@ -10,6 +10,8 @@ import weka.filters.supervised.attribute.AttributeSelection;
 import weka.attributeSelection.ChiSquaredAttributeEval;
 import weka.attributeSelection.Ranker;
 import weka.classifiers.Classifier;
+import weka.classifiers.evaluation.Evaluation;
+import weka.classifiers.functions.Logistic;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -17,6 +19,28 @@ import weka.core.Instances;
 import weka.filters.Filter;
 
 public class Utils {
+	
+	public static String doCrossPrediction(Instances source,Instances target,String strPos){
+		String result = "";
+		
+		int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(strPos);
+		try {
+			Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, "weka.classifiers.functions.Logistic", null);
+			classifier.buildClassifier(source);
+			
+			Evaluation eval = new Evaluation(source);
+			eval.evaluateModel(classifier, target);
+			
+			result = eval.precision(posClassValueIndex) + "," + eval.recall(posClassValueIndex) + "," +
+					eval.fMeasure(posClassValueIndex) + "," + eval.areaUnderROC(posClassValueIndex);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
 	/**
 	 * Load Instances from arff file. Last attribute will be set as class attribute
 	 * @param path arff file path
