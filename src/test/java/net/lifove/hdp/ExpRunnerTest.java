@@ -11,15 +11,15 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import org.junit.Test;
 
 import net.lifove.hdp.util.Utils;
-import weka.core.Attribute;
 import weka.core.Instances;
 
-public class BatchRunnerTest {
+public class ExpRunnerTest {
 
 	@Test
 	public void testMain() {
@@ -29,17 +29,17 @@ public class BatchRunnerTest {
 				"ReLink/Safe.arff",
 				"ReLink/Apache.arff",
 				"ReLink/Zxing.arff",
-				"NASA/MC2.arff", // new
-				"NASA/PC5.arff", // new
+				//"NASA/MC2.arff", // new
+				//"NASA/PC5.arff", // new
 				"NASA/PC1.arff",
-				"NASA/PC2.arff", // new
-				"NASA/JM1.arff", // new
+				//"NASA/PC2.arff", // new
+				//"NASA/JM1.arff", // new
 				"NASA/PC4.arff",
-				"NASA/KC3.arff", // new
+				//"NASA/KC3.arff", // new
 				"NASA/PC3.arff",
 				"NASA/MW1.arff",
 				"NASA/CM1.arff",
-				"NASA/MC1.arff", // new
+				//"NASA/MC1.arff", // new
 				"SOFTLAB/ar5.arff",
 				"SOFTLAB/ar3.arff",
 				"SOFTLAB/ar4.arff",
@@ -55,33 +55,19 @@ public class BatchRunnerTest {
 				"CK/velocity-1.4.arff",
 				"CK/xalan-2.4.arff",
 				"CK/xerces-1.2.arff",
-				/*"CK/ivy-2.0.arff",
-				"CK/jedit-4.1.arff",
-				"CK/lucene-2.4.arff",
-				"CK/poi-3.0.arff",
-				"CK/synapse-1.2.arff",
-				"CK/velocity-1.6.arff",
-				"CK/xalan-2.6.arff",
-				"CK/xerces-1.3.arff",
-				"CK/prop-1.arff",
-				"CK/prop-2.arff",
-				"CK/prop-3.arff",
-				"CK/prop-4.arff",
-				"CK/prop-5.arff",
-				"CK/prop-6.arff",
-				"CK/sklebagd.arff",*/
 				"AEEEM/PDE.arff",
 				"AEEEM/EQ.arff",
 				"AEEEM/LC.arff",
 				"AEEEM/JDT.arff",
 				"AEEEM/ML.arff"
-				};
+		};
 		
 		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
-		
-		String cutoff = "0.05";
 
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/SingleHDP_C" + cutoff +".txt");
+		Double cutoff = 0.05;
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/SingleHDP_C" + cutoff + ".txt");
+		
+		HashMap<String,String> withinResults = new HashMap<String,String>();
 		
 		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
 			
@@ -96,30 +82,53 @@ public class BatchRunnerTest {
 					Instances sourceInstances = Utils.loadArff(pathToDataset +  source, srclabelInfo[0]);
 					Instances targetInstances = Utils.loadArff(pathToDataset +  target, tarlabelInfo[0]);
 					
+					
 					// Skip datasets with the same number of attrbiutes
 					if(sameMetricSets(sourceInstances,targetInstances)){
 						System.err.println("SKIP: the number of attributes is same.: " + source + "==> " + target);
 						continue;
 					}
 					
-					String[] args = {"-s", pathToDataset +  source, "-t",  pathToDataset + target,
-							"-sl", srclabelInfo[0], "-sp", srclabelInfo[1],
-							"-tl", tarlabelInfo[0], "-tp", tarlabelInfo[1],"-c",cutoff,"-r"}; 
-					runner.getStringHDPResult(args);
+					int numRuns = 500;
+					int folds =2;
 					
-					String result = runner.getStringHDPResult(args);
-					
-					if(result.equals(""))
-						continue;
-					
-					writer.write(source + "," + target + "," + result + "\n" );
+					for(int repeat=0;repeat < numRuns;repeat++){
+						
+						// randomize with different seed for each iteration
+						targetInstances.randomize(new Random(repeat)); 
+						targetInstances.stratify(folds);
+						
+						for(int fold = 0; fold < folds; fold++){
+							String withinResult = "";
+							
+							String key = target + repeat + "," + fold; 
+							if(withinResults.containsKey(key))
+								withinResult = withinResults.get(key);
+							else{
+								withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
+													targetInstances.testCV(folds, fold),
+													tarlabelInfo[1]);
+								withinResults.put(key,withinResult);		
+							}
+							
+							String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
+									tarlabelInfo[0], tarlabelInfo[1], cutoff, true);
+							
+							if(result.equals(""))
+								continue;
+							
+							writer.write(repeat + "," +fold + "," + source + "," + target + "," + 
+											source + target + "," +
+											withinResult + ","+ result + "\n" );
+						}
+					}
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	private boolean sameMetricSets(Instances sourceInstances, Instances targetInstances) {
 		
 		if(sourceInstances.numAttributes()!=targetInstances.numAttributes())
