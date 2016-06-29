@@ -84,14 +84,14 @@ public class Runner {
 						eval.evaluateModel(classifier, target);
 
 						if(printOutResult){
-							System.out.println("AUC: " + eval.areaUnderPRC(posClassValueIndex));
+							System.out.println("AUC: " + eval.areaUnderROC(posClassValueIndex));
 							System.out.println("Precision: " + eval.precision(posClassValueIndex));
 							System.out.println("Recall: " + eval.recall(posClassValueIndex));
 							System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
 						}
 						
 						resultString = eval.precision(posClassValueIndex) + "," + eval.recall(posClassValueIndex) + "," +
-								eval.fMeasure(posClassValueIndex) + "," + eval.areaUnderPRC(posClassValueIndex);
+								eval.fMeasure(posClassValueIndex) + "," + eval.areaUnderROC(posClassValueIndex);
 						
 					}else{
 						Utils.printPredictionResultForEachInstance(target, classifier);
