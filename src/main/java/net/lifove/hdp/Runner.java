@@ -35,7 +35,6 @@ public class Runner {
 	}
 
 	void runner(String[] args) {
-		
 		conductHDP(args,true);
 	}
 
@@ -53,52 +52,61 @@ public class Runner {
 			Instances source = Utils.loadArff(sourcePath, srclabelName);
 			Instances target = Utils.loadArff(targetPath, tarlabelName);
 			
-			if(source!=null && target!=null){
-				source = new MetricSelector(source).getNewInstances();
-				ArrayList<String> matchedMetrics = new MetricMatcher(source,target,cutoff,numThreads).match();
-				
-				// generate new datasets
-				if(matchedMetrics.size()>0){
-					source = Utils.getNewInstancesByMatchedMetrics(source, matchedMetrics, true, srclabelName, srcPosLabelValue);
-					target = Utils.getNewInstancesByMatchedMetrics(target, matchedMetrics, false, tarlabelName, tarPosLabelValue);
-					
-					//String mlAlgorithm = "weka.classifiers.functions.Logistic";
-					int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(Utils.strPos);
-					try {
-						Classifier classifier = (Classifier) new Logistic();//weka.core.Utils.forName(Classifier.class, mlAlgorithm, null);
-						classifier.buildClassifier(source);
-						
-						if(target.attributeStats(target.classIndex()).nominalCounts[1]!=0){			
-							
-							if(!suppress && printOutResult)
-								Utils.printPredictionResultForEachInstance(target, classifier);
-							
-							Evaluation eval = new Evaluation(source);
-							eval.evaluateModel(classifier, target);
+			resultString = doHDP(printOutResult, source, target,srclabelName,srcPosLabelValue,tarlabelName,tarPosLabelValue,cutoff,suppress);
+		}
+	}
 
-							if(printOutResult){
-								System.out.println("AUC: " + eval.areaUnderPRC(posClassValueIndex));
-								System.out.println("Precision: " + eval.precision(posClassValueIndex));
-								System.out.println("Recall: " + eval.recall(posClassValueIndex));
-								System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
-							}
-							
-							resultString = eval.precision(posClassValueIndex) + "," + eval.recall(posClassValueIndex) + "," +
-									eval.fMeasure(posClassValueIndex) + "," + eval.areaUnderPRC(posClassValueIndex);
-							
-						}else{
+	public String doHDP(boolean printOutResult, Instances source, Instances target,
+				String srclabelName, String srcPosLabelValue,
+				String tarlabelName, String tarPosLabelValue, double cutoff, boolean suppress) {
+		String resultString = "";
+		if(source!=null && target!=null){
+			source = new MetricSelector(source).getNewInstances();
+			ArrayList<String> matchedMetrics = new MetricMatcher(source,target,cutoff,numThreads).match();
+			
+			// generate new datasets
+			if(matchedMetrics.size()>0){
+				source = Utils.getNewInstancesByMatchedMetrics(source, matchedMetrics, true, srclabelName, srcPosLabelValue);
+				target = Utils.getNewInstancesByMatchedMetrics(target, matchedMetrics, false, tarlabelName, tarPosLabelValue);
+				
+				//String mlAlgorithm = "weka.classifiers.functions.Logistic";
+				int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(Utils.strPos);
+				try {
+					Classifier classifier = (Classifier) new Logistic();//weka.core.Utils.forName(Classifier.class, mlAlgorithm, null);
+					classifier.buildClassifier(source);
+					
+					if(target.attributeStats(target.classIndex()).nominalCounts[1]!=0){			
+						
+						if(!suppress && printOutResult)
 							Utils.printPredictionResultForEachInstance(target, classifier);
+						
+						Evaluation eval = new Evaluation(source);
+						eval.evaluateModel(classifier, target);
+
+						if(printOutResult){
+							System.out.println("AUC: " + eval.areaUnderPRC(posClassValueIndex));
+							System.out.println("Precision: " + eval.precision(posClassValueIndex));
+							System.out.println("Recall: " + eval.recall(posClassValueIndex));
+							System.out.println("F1: " + eval.fMeasure(posClassValueIndex));
 						}
 						
-					} catch (Exception e) {
-						e.printStackTrace();
+						resultString = eval.precision(posClassValueIndex) + "," + eval.recall(posClassValueIndex) + "," +
+								eval.fMeasure(posClassValueIndex) + "," + eval.areaUnderPRC(posClassValueIndex);
+						
+					}else{
+						Utils.printPredictionResultForEachInstance(target, classifier);
 					}
-				}
-				else{
-					System.err.println("There are no matched metrics! Source and target datasets are too different to do HDP!");
+					
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
+			else{
+				System.err.println("There are no matched metrics! Source and target datasets are too different to do HDP!" + sourcePath +"," + targetPath);
+			}
 		}
+		
+		return resultString;
 	}
 	
 	Options createOptions(){
@@ -211,7 +219,7 @@ public class Runner {
 		formatter.printHelp( "./HDP", header, options, footer, true);
 	}
 
-	public String getStringHDPResult(String[] args) {		
+	public String getStringHDPResult(String[] args) {
 		conductHDP(args,false);
 		return resultString;
 	}
