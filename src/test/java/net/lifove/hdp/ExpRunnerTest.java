@@ -65,7 +65,7 @@ public class ExpRunnerTest {
 		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 
 		Double cutoff = 0.05;
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/SingleHDP_C" + cutoff + ".txt");
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/SingleHDP_C" + cutoff + "FSSigAttrEval.txt");
 		
 		HashMap<String,String> withinResults = new HashMap<String,String>();
 		
@@ -169,7 +169,7 @@ public class ExpRunnerTest {
 		}
 		
 		if(group.equals("CK")){
-			labelInfo[0] = "class";
+			labelInfo[0] = "bug"; // bug or class
 			labelInfo[1] = "buggy";
 		}
 		
