@@ -17,6 +17,6 @@ public class MetricSelector {
 			numSelectedMetrics=1;
 		}
 
-		return Utils.featrueSelectionByChiSquare(instances,numSelectedMetrics);
+		return Utils.featrueSelectionBySignificanceAttributeEval(instances,numSelectedMetrics);//featrueSelectionByChiSquare(instances,numSelectedMetrics);
 	}
 }
