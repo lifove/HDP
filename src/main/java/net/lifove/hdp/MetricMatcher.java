@@ -1,5 +1,6 @@
 package net.lifove.hdp;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -71,9 +72,32 @@ public class MetricMatcher {
 		for(int srcMetricIdx=0;srcMetricIdx < matching.length;srcMetricIdx++){
 			String key = srcMetricIdx + "-" + matching[srcMetricIdx];
 			if(matching[srcMetricIdx]>=0 && matchingScores.get(key) > cutoff )
-				matchedMetrics.add(key);
+				matchedMetrics.add(key + "(" +  matchingScores.get(key) + ")");
 		}
 		
 		return matchedMetrics;
+	}
+	
+	static public String getStrMatchedMetrics(Instances origSource, Instances origTarget, ArrayList<String> matchedMetrics) {
+		
+		String strMatchedMetrics = "";
+		
+		for(String matchedMetric: matchedMetrics){
+			String[] splitMetricInfo = matchedMetric.split("\\(");
+			String[] metrics = splitMetricInfo[0].split("-");
+			
+			int srcMetricIdx = Integer.parseInt(metrics[0]);
+			int tarMetricIdx = Integer.parseInt(metrics[1]);
+			
+			String srcMetricName = origSource.attribute(srcMetricIdx).name();
+			String tarMetricName = origTarget.attribute(tarMetricIdx).name();
+			
+			DecimalFormat dec = new DecimalFormat("0.000");
+			Double matcingScore = Double.parseDouble(splitMetricInfo[1].substring(0, splitMetricInfo[1].length()-1));
+			
+			strMatchedMetrics += srcMetricName + ">>" + tarMetricName + "(" + dec.format(matcingScore) + ")|";	
+		}
+		
+		return strMatchedMetrics;
 	}
 }

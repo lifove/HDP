@@ -56,18 +56,18 @@ public class Runner {
 		}
 	}
 
-	public String doHDP(boolean printOutResult, Instances source, Instances target,
+	public String doHDP(boolean printOutResult, Instances origSource, Instances origTarget,
 				String srclabelName, String srcPosLabelValue,
 				String tarlabelName, String tarPosLabelValue, double cutoff, boolean suppress) {
 		String resultString = "";
-		if(source!=null && target!=null){
-			source = new MetricSelector(source).getNewInstances();
-			ArrayList<String> matchedMetrics = new MetricMatcher(source,target,cutoff,numThreads).match();
+		if(origSource!=null && origTarget!=null){
+			origSource = new MetricSelector(origSource).getNewInstances();
+			ArrayList<String> matchedMetrics = new MetricMatcher(origSource,origTarget,cutoff,numThreads).match();
 			
 			// generate new datasets
 			if(matchedMetrics.size()>0){
-				source = Utils.getNewInstancesByMatchedMetrics(source, matchedMetrics, true, srclabelName, srcPosLabelValue);
-				target = Utils.getNewInstancesByMatchedMetrics(target, matchedMetrics, false, tarlabelName, tarPosLabelValue);
+				Instances source = Utils.getNewInstancesByMatchedMetrics(origSource, matchedMetrics, true, srclabelName, srcPosLabelValue);
+				Instances target = Utils.getNewInstancesByMatchedMetrics(origTarget, matchedMetrics, false, tarlabelName, tarPosLabelValue);
 				
 				//String mlAlgorithm = "weka.classifiers.functions.Logistic";
 				int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(Utils.strPos);
@@ -91,7 +91,8 @@ public class Runner {
 						}
 						
 						resultString = eval.precision(posClassValueIndex) + "," + eval.recall(posClassValueIndex) + "," +
-								eval.fMeasure(posClassValueIndex) + "," + eval.areaUnderROC(posClassValueIndex);
+								eval.fMeasure(posClassValueIndex) + "," + eval.areaUnderROC(posClassValueIndex) + "," + 
+								MetricMatcher.getStrMatchedMetrics(origSource,origTarget,matchedMetrics);
 						
 					}else{
 						Utils.printPredictionResultForEachInstance(target, classifier);
@@ -108,7 +109,7 @@ public class Runner {
 		
 		return resultString;
 	}
-	
+
 	Options createOptions(){
 		
 		// create Options object

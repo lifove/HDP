@@ -133,7 +133,8 @@ public class Utils {
 			
 			// process attribute values except for label
 			for(int i=0; i<attributes.size()-1;i++){
-				String[] labels = matchedAttributes.get(i).split("-");
+				String[] matchedMetricsInfo = matchedAttributes.get(i).split("\\(");
+				String[] labels = matchedMetricsInfo[0].split("-");
 				int[] intLabels = {Integer.parseInt(labels[0]),Integer.parseInt(labels[1])};
 				vals[i] = isSource?instance.value(intLabels[0]):instance.value(intLabels[1]);
 			}
