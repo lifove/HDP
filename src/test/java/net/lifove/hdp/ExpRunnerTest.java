@@ -65,7 +65,7 @@ public class ExpRunnerTest {
 		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 
 		Double cutoff = 0.05;
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/SingleHDP_C" + cutoff + "FSSigAttrEval.txt");
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + cutoff + "FSSigAttrEval.txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
