@@ -71,8 +71,11 @@ public class Runner {
 	}
 
 	private String doHDP(boolean printOutResult, Instances origSource, Instances origTarget, String srclabelName,
-			String srcPosLabelValue, String tarlabelName, String tarPosLabelValue, ArrayList<String> matchedMetrics,
+			String srcPosLabelValue, String tarlabelName, String tarPosLabelValue, ArrayList<String> strMatchedMetrics,
 			boolean suppress, String resultString) {
+		
+		ArrayList<String> matchedMetrics = getMetchedMetricsFromStrMatchedMetrics(strMatchedMetrics,origSource,origTarget);
+		
 		// generate new datasets
 		if(matchedMetrics.size()>0){
 			Instances source = Utils.getNewInstancesByMatchedMetrics(origSource, matchedMetrics, true, srclabelName, srcPosLabelValue);
@@ -115,6 +118,25 @@ public class Runner {
 			System.err.println("There are no matched metrics! Source and target datasets are too different to do HDP!" + sourcePath +"," + targetPath);
 		}
 		return resultString;
+	}
+
+	private ArrayList<String> getMetchedMetricsFromStrMatchedMetrics(ArrayList<String> strMatchedMetrics,
+			Instances origSource, Instances origTarget) {
+		
+		ArrayList<String> matchedMetrics = new ArrayList<String> ();
+		
+		for(String attrInfo:strMatchedMetrics){
+			String[] splitAttrInfo = attrInfo.split("\\(");
+			String[] attrNames = splitAttrInfo[0].split("-");
+			
+			int srcAttrIdx = origSource.attribute(attrNames[0])!=null?origSource.attribute(attrNames[0]).index():-1;
+			int tarAttrIdx = origTarget.attribute(attrNames[1])!=null?origTarget.attribute(attrNames[1]).index():-1;
+			
+			if(srcAttrIdx >=0 && tarAttrIdx >=0 )
+				matchedMetrics.add(srcAttrIdx + "-" + tarAttrIdx +"(" +  splitAttrInfo[1]);
+		}
+		
+		return matchedMetrics;
 	}
 
 	public String doHDP(boolean printOutResult, Instances origSource, Instances origTarget,

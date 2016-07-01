@@ -37,7 +37,7 @@ public class MetricMatcher {
 				double[] sourceMetric=source.attributeToDoubleArray(srcAttrIdx);
 				double[] targetMetric=target.attributeToDoubleArray(tarAttrIdx);
 				
-				Runnable ksAnalyzer = new KSAnalyzer(sourceMetric,targetMetric,srcAttrIdx+"-"+tarAttrIdx);
+				Runnable ksAnalyzer = new KSAnalyzer(sourceMetric,targetMetric,source.attribute(srcAttrIdx).name()+"-"+target.attribute(tarAttrIdx).name());
 				threads.add(ksAnalyzer);
 				executor.execute(ksAnalyzer);
 			}
@@ -64,20 +64,27 @@ public class MetricMatcher {
 		MWBMatchingAlgorithm mwb = new MWBMatchingAlgorithm(source.numAttributes()-1,target.numAttributes()-1);
 		for(String key:matchingScores.keySet()){
 			String[] pairs = key.split("-");
-			mwb.setWeight(Integer.parseInt(pairs[0]), Integer.parseInt(pairs[1]),matchingScores.get(key));
+			int srcMetricIdx = source.attribute(pairs[0]).index();
+			int tarMetricIdx = target.attribute(pairs[1]).index();
+			mwb.setWeight(srcMetricIdx, tarMetricIdx,matchingScores.get(key));
 		}
 		
 		ArrayList<String> matchedMetrics = new ArrayList<String>();
 		int[] matching = mwb.getMatching(); // index is srcMetricIdx and value is tarMetricIdx
 		for(int srcMetricIdx=0;srcMetricIdx < matching.length;srcMetricIdx++){
-			String key = srcMetricIdx + "-" + matching[srcMetricIdx];
-			if(matching[srcMetricIdx]>=0 && matchingScores.get(key) > cutoff )
-				matchedMetrics.add(key + "(" +  matchingScores.get(key) + ")");
+			if(matching[srcMetricIdx]>=0){
+				String key = getAttributeName(srcMetricIdx,source) + "-" + getAttributeName(matching[srcMetricIdx],target);
+				if(matchingScores.get(key) > cutoff )
+					matchedMetrics.add(key + "(" +  matchingScores.get(key) + ")");
+			}
 		}
 		
 		return matchedMetrics;
 	}
 	
+	private String getAttributeName(int attrIdx,Instances instances){
+		return instances.attribute(attrIdx).name();
+	}
 	static public String getStrMatchedMetrics(Instances origSource, Instances origTarget, ArrayList<String> matchedMetrics) {
 		
 		String strMatchedMetrics = "";
