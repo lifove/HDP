@@ -67,6 +67,8 @@ public class ExpRunnerTest {
 		Double cutoff = 0.05;
 		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/SingleHDP_C" + cutoff + "FSSigAttrEval.txt");
 		
+		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
+		
 		HashMap<String,String> withinResults = new HashMap<String,String>();
 		
 		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
@@ -82,8 +84,18 @@ public class ExpRunnerTest {
 					Instances sourceInstances = Utils.loadArff(pathToDataset +  source, srclabelInfo[0]);
 					Instances targetInstances = Utils.loadArff(pathToDataset +  target, tarlabelInfo[0]);
 					
+					ArrayList<String> matchedMetrics;
 					
-					// Skip datasets with the same number of attrbiutes
+					String keyForMatchedMetrics =source + target;
+					
+					if(mapMatchedMetrics.containsKey(keyForMatchedMetrics))
+						matchedMetrics = mapMatchedMetrics.get(keyForMatchedMetrics);
+					else{
+						matchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,4).match();
+						mapMatchedMetrics.put(keyForMatchedMetrics, matchedMetrics);
+					}
+					
+					// Skip datasets with the same number of attributes
 					if(sameMetricSets(sourceInstances,targetInstances)){
 						System.err.println("SKIP: the number of attributes is same.: " + source + "==> " + target);
 						continue;
@@ -112,7 +124,7 @@ public class ExpRunnerTest {
 							}
 							
 							String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
-									tarlabelInfo[0], tarlabelInfo[1], cutoff, true);
+									tarlabelInfo[0], tarlabelInfo[1], matchedMetrics, cutoff, true);
 							
 							if(result.equals(""))
 								continue;
