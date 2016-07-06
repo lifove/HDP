@@ -17,6 +17,7 @@ import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import org.junit.Test;
 
 import net.lifove.hdp.util.Utils;
+import net.lifove.hdp.util.Utils.FeatureSelectors;
 import weka.core.Instances;
 
 public class ExpRunnerTest {
@@ -29,17 +30,17 @@ public class ExpRunnerTest {
 				"ReLink/Safe.arff",
 				"ReLink/Apache.arff",
 				"ReLink/Zxing.arff",
-				//"NASA/MC2.arff", // new
-				//"NASA/PC5.arff", // new
+				"NASA/MC2.arff", // new
+				"NASA/PC5.arff", // new
 				"NASA/PC1.arff",
-				//"NASA/PC2.arff", // new
-				//"NASA/JM1.arff", // new
+				"NASA/PC2.arff", // new
+				"NASA/JM1.arff", // new
 				"NASA/PC4.arff",
-				//"NASA/KC3.arff", // new
+				"NASA/KC3.arff", // new
 				"NASA/PC3.arff",
 				"NASA/MW1.arff",
 				"NASA/CM1.arff",
-				//"NASA/MC1.arff", // new
+				"NASA/MC1.arff", // new
 				"SOFTLAB/ar5.arff",
 				"SOFTLAB/ar3.arff",
 				"SOFTLAB/ar4.arff",
@@ -65,7 +66,8 @@ public class ExpRunnerTest {
 		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 
 		Double cutoff = 0.05;
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + cutoff + "FSSigAttrEval.txt");
+		FeatureSelectors fSelector = FeatureSelectors.Significance;
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + cutoff + "_" + fSelector.name()+ ".txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
@@ -82,17 +84,18 @@ public class ExpRunnerTest {
 					String[] tarlabelInfo = getLabelInfo(target);
 					
 					Instances sourceInstances = Utils.loadArff(pathToDataset +  source, srclabelInfo[0]);
+					sourceInstances = new MetricSelector(sourceInstances,fSelector).getNewInstances();
 					Instances targetInstances = Utils.loadArff(pathToDataset +  target, tarlabelInfo[0]);
 					
-					ArrayList<String> matchedMetrics;
+					ArrayList<String> strMatchedMetrics;
 					
 					String keyForMatchedMetrics =source + target;
 					
 					if(mapMatchedMetrics.containsKey(keyForMatchedMetrics))
-						matchedMetrics = mapMatchedMetrics.get(keyForMatchedMetrics);
+						strMatchedMetrics = mapMatchedMetrics.get(keyForMatchedMetrics);
 					else{
-						matchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,4).match();
-						mapMatchedMetrics.put(keyForMatchedMetrics, matchedMetrics);
+						strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,4).match();
+						mapMatchedMetrics.put(keyForMatchedMetrics, strMatchedMetrics);
 					}
 					
 					// Skip datasets with the same number of attributes
@@ -124,7 +127,7 @@ public class ExpRunnerTest {
 							}
 							
 							String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
-									tarlabelInfo[0], tarlabelInfo[1], matchedMetrics, cutoff, true);
+									tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, cutoff, true,FeatureSelectors.None);
 							
 							if(result.equals(""))
 								continue;
