@@ -67,6 +67,25 @@ public class Utils {
 		return instances;
 	}
 	
+	
+	public static enum FeatureSelectors {
+		ChiSquare,
+		Significance,
+		GainRatio,
+		RelieF,
+		None
+	}
+	
+	static public Instances featureSelection(Instances data,int numSelected,FeatureSelectors fSelector){
+		
+		if(fSelector.equals(FeatureSelectors.ChiSquare))
+			return featrueSelectionByChiSquare(data,numSelected);
+		else if(fSelector.equals(FeatureSelectors.Significance))
+			return featrueSelectionBySignificanceAttributeEval(data,numSelected);
+		
+		return data;
+	}
+	
 	/**
 	 * Select features based on chi-squared attribute selection
 	 * @param data instances

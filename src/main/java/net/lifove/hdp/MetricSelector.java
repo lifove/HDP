@@ -1,13 +1,15 @@
 package net.lifove.hdp;
 
 import net.lifove.hdp.util.Utils;
+import net.lifove.hdp.util.Utils.FeatureSelectors;
 import weka.core.Instances;
 
 public class MetricSelector {
 	Instances instances;
-	
-	public MetricSelector(Instances source){
+	FeatureSelectors fSelector;
+	public MetricSelector(Instances source, FeatureSelectors fSelector){
 		instances = source;
+		this.fSelector = fSelector;
 	}
 	
 	public Instances getNewInstances(){
@@ -17,6 +19,6 @@ public class MetricSelector {
 			numSelectedMetrics=1;
 		}
 
-		return Utils.featrueSelectionBySignificanceAttributeEval(instances,numSelectedMetrics);//featrueSelectionByChiSquare(instances,numSelectedMetrics);
+		return Utils.featureSelection(instances,numSelectedMetrics,fSelector);//featrueSelectionByChiSquare(instances,numSelectedMetrics);
 	}
 }

@@ -10,6 +10,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import net.lifove.hdp.util.Utils;
+import net.lifove.hdp.util.Utils.FeatureSelectors;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.functions.Logistic;
@@ -58,10 +59,11 @@ public class Runner {
 
 	public String doHDP(boolean printOutResult, Instances origSource, Instances origTarget,
 			String srclabelName, String srcPosLabelValue,
-			String tarlabelName, String tarPosLabelValue, ArrayList<String> matchedMetrics, double cutoff, boolean suppress) {
+			String tarlabelName, String tarPosLabelValue, ArrayList<String> matchedMetrics, double cutoff, boolean suppress,
+			FeatureSelectors fSelector) {
 		String resultString = "";
 		if(origSource!=null && origTarget!=null){
-			origSource = new MetricSelector(origSource).getNewInstances();
+			origSource = new MetricSelector(origSource,fSelector).getNewInstances();
 
 			resultString = doHDP(printOutResult, origSource, origTarget, srclabelName, srcPosLabelValue, tarlabelName,
 					tarPosLabelValue, matchedMetrics, suppress, resultString);
@@ -144,7 +146,7 @@ public class Runner {
 			String tarlabelName, String tarPosLabelValue, double cutoff, boolean suppress) {
 		String resultString = "";
 		if(origSource!=null && origTarget!=null){
-			origSource = new MetricSelector(origSource).getNewInstances();
+			origSource = new MetricSelector(origSource,FeatureSelectors.Significance).getNewInstances();
 			ArrayList<String> matchedMetrics = new MetricMatcher(origSource,origTarget,cutoff,numThreads).match();
 
 			resultString = doHDP(printOutResult, origSource, origTarget, srclabelName, srcPosLabelValue, tarlabelName,
