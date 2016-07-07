@@ -63,11 +63,11 @@ public class ExpRunnerTest {
 				"AEEEM/ML.arff"
 		};
 		
-		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
+		String pathToDataset = System.getProperty("user.home") + "/HDP/data/";
 
 		Double cutoff = 0.05;
 		FeatureSelectors fSelector = FeatureSelectors.Significance;
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + cutoff + "_" + fSelector.name()+ ".txt");
+		Path path = Paths.get(System.getProperty("user.home") + "/HDP/Results/HDP_C" + cutoff + "_" + fSelector.name()+ ".txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
@@ -84,8 +84,15 @@ public class ExpRunnerTest {
 					String[] tarlabelInfo = getLabelInfo(target);
 					
 					Instances sourceInstances = Utils.loadArff(pathToDataset +  source, srclabelInfo[0]);
-					sourceInstances = new MetricSelector(sourceInstances,fSelector).getNewInstances();
 					Instances targetInstances = Utils.loadArff(pathToDataset +  target, tarlabelInfo[0]);
+					
+					// Skip datasets with the same number of attributes
+					if(sameMetricSets(sourceInstances,targetInstances)){
+						System.err.println("SKIP: the number of attributes is same.: " + source + "==> " + target);
+						continue;
+					}
+					
+					sourceInstances = new MetricSelector(sourceInstances,fSelector).getNewInstances();
 					
 					ArrayList<String> strMatchedMetrics;
 					
@@ -96,12 +103,6 @@ public class ExpRunnerTest {
 					else{
 						strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,4).match();
 						mapMatchedMetrics.put(keyForMatchedMetrics, strMatchedMetrics);
-					}
-					
-					// Skip datasets with the same number of attributes
-					if(sameMetricSets(sourceInstances,targetInstances)){
-						System.err.println("SKIP: the number of attributes is same.: " + source + "==> " + target);
-						continue;
 					}
 					
 					int numRuns = 500;
