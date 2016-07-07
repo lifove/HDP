@@ -12,7 +12,6 @@ import weka.attributeSelection.Ranker;
 import weka.attributeSelection.SignificanceAttributeEval;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
-import weka.classifiers.functions.Logistic;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -124,7 +123,7 @@ public class Utils {
 		Instances newData = null;
 
 		AttributeSelection filter = new AttributeSelection();  // package weka.filters.supervised.attribute!
-		SignificanceAttributeEval eval = new SignificanceAttributeEval();
+		ChiSquaredAttributeEval eval = new ChiSquaredAttributeEval();
 		Ranker search = new Ranker();
 		//search.setThreshold(-1.7976931348623157E308);
 		search.setNumToSelect(numSelected);
