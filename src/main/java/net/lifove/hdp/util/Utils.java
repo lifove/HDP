@@ -8,7 +8,9 @@ import java.util.ArrayList;
 
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.attributeSelection.ChiSquaredAttributeEval;
+import weka.attributeSelection.GainRatioAttributeEval;
 import weka.attributeSelection.Ranker;
+import weka.attributeSelection.ReliefFAttributeEval;
 import weka.attributeSelection.SignificanceAttributeEval;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
@@ -81,6 +83,10 @@ public class Utils {
 			return featrueSelectionByChiSquare(data,numSelected);
 		else if(fSelector.equals(FeatureSelectors.Significance))
 			return featrueSelectionBySignificanceAttributeEval(data,numSelected);
+		else if(fSelector.equals(FeatureSelectors.RelieF))
+			return featrueSelectionByRelieF(data,numSelected);
+		else if(fSelector.equals(FeatureSelectors.GainRatio))
+			return featrueSelectionByGainRatio(data,numSelected);
 		
 		return data;
 	}
@@ -124,6 +130,62 @@ public class Utils {
 
 		AttributeSelection filter = new AttributeSelection();  // package weka.filters.supervised.attribute!
 		ChiSquaredAttributeEval eval = new ChiSquaredAttributeEval();
+		Ranker search = new Ranker();
+		//search.setThreshold(-1.7976931348623157E308);
+		search.setNumToSelect(numSelected);
+		filter.setEvaluator(eval);
+		filter.setSearch(search);
+		try {
+			filter.setInputFormat(data);
+
+			// generate new data
+			newData = Filter.useFilter(data, filter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return newData;
+	}
+	
+	/**
+	 * Select features based on RelieF attribute selection
+	 * @param data instances
+	 * @param numSelected the number features to be selected.
+	 * @return
+	 */
+	static public Instances featrueSelectionByRelieF(Instances data,int numSelected){
+		Instances newData = null;
+
+		AttributeSelection filter = new AttributeSelection();  // package weka.filters.supervised.attribute!
+		ReliefFAttributeEval eval = new ReliefFAttributeEval();
+		Ranker search = new Ranker();
+		//search.setThreshold(-1.7976931348623157E308);
+		search.setNumToSelect(numSelected);
+		filter.setEvaluator(eval);
+		filter.setSearch(search);
+		try {
+			filter.setInputFormat(data);
+
+			// generate new data
+			newData = Filter.useFilter(data, filter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return newData;
+	}
+	
+	/**
+	 * Select features based on GainRatio attribute selection
+	 * @param data instances
+	 * @param numSelected the number features to be selected.
+	 * @return
+	 */
+	static public Instances featrueSelectionByGainRatio(Instances data,int numSelected){
+		Instances newData = null;
+
+		AttributeSelection filter = new AttributeSelection();  // package weka.filters.supervised.attribute!
+		GainRatioAttributeEval eval = new GainRatioAttributeEval();
 		Ranker search = new Ranker();
 		//search.setThreshold(-1.7976931348623157E308);
 		search.setNumToSelect(numSelected);
