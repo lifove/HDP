@@ -48,4 +48,7 @@ dependencies {
     
     // google guava
     compile 'com.google.guava:guava:19.0'
+    
+    // https://mvnrepository.com/artifact/org.rosuda.REngine/Rserve
+	compile group: 'org.rosuda.REngine', name: 'Rserve', version: '1.8.1'
 }
