@@ -52,3 +52,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.rosuda.REngine/Rserve
 	compile group: 'org.rosuda.REngine', name: 'Rserve', version: '1.8.1'
 }
+
+test {
+  maxHeapSize = "4000m"
+}
