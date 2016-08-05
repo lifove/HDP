@@ -119,6 +119,7 @@ public class EffectSizeRScriptGeneratorTest {
 		System.err.println(linesIFS.size());
 		int repeat=0;
 		int fold = 0;
+		lineCount=0;
 		for(String line:linesIFS){
 			String[] splitLine = line.split(",");
 			if(splitLine[0].trim().equals("A")) continue;
