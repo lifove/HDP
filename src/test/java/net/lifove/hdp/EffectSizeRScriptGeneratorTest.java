@@ -24,9 +24,46 @@ import com.google.common.primitives.Doubles;
 public class EffectSizeRScriptGeneratorTest {
 	
 	DecimalFormat dec = new DecimalFormat("0.000");
-
+	
 	@Test
 	public void testMain() {
+		
+		ArrayList<String> orderedProjectName = new ArrayList<String>();
+		orderedProjectName.add("EQ");
+		orderedProjectName.add("JDT");
+		orderedProjectName.add("LC");
+		orderedProjectName.add("ML");
+		orderedProjectName.add("PDE");
+		orderedProjectName.add("Apache");
+		orderedProjectName.add("Safe");
+		orderedProjectName.add("Zxing");
+		orderedProjectName.add("ant-1.3");
+		orderedProjectName.add("arc");
+		orderedProjectName.add("camel-1.0");
+		orderedProjectName.add("poi-1.5");
+		orderedProjectName.add("redaktor");
+		orderedProjectName.add("skarbonka");
+		orderedProjectName.add("tomcat");
+		orderedProjectName.add("velocity-1.4");
+		orderedProjectName.add("xalan-2.4");
+		orderedProjectName.add("xerces-1.2");
+		orderedProjectName.add("CM1");
+		orderedProjectName.add("MW1");
+		orderedProjectName.add("PC1");
+		orderedProjectName.add("PC3");
+		orderedProjectName.add("PC4");
+		orderedProjectName.add("JM1");
+		orderedProjectName.add("PC2");
+		orderedProjectName.add("PC5");
+		orderedProjectName.add("MC1");
+		orderedProjectName.add("MC2");
+		orderedProjectName.add("KC3");
+		orderedProjectName.add("ar1");
+		orderedProjectName.add("ar3");
+		orderedProjectName.add("ar4");
+		orderedProjectName.add("ar5");
+		orderedProjectName.add("ar6");
+		
 		
 		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
 		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C0.05_ChiSquare.txt",false);
@@ -241,7 +278,8 @@ public class EffectSizeRScriptGeneratorTest {
 				c.assign("control", Doubles.toArray(ifs));
 				RList lIFS = c.eval("cliff.delta(treatment,control)").asList();
 				
-				System.out.println(key.replace(".arff","") + "\t" + 
+				System.out.println(orderedProjectName.indexOf(key) + "\t" + 
+							key.replace(".arff","") + "\t" + 
 							dec.format(getMedian(mediansWPDP.get(key))) + "\t" + 
 							dec.format(lWPDP.at("estimate").asDouble()) + "\t" +
 							dec.format(getMedian(mediansCM.get(key))) + "\t" +
@@ -250,9 +288,38 @@ public class EffectSizeRScriptGeneratorTest {
 							dec.format(lIFS.at("estimate").asDouble()) + "\t" +
 							dec.format(getMedian(mediansHDP.get(key))));
 			}
+			System.out.println("-\tMedian\t" + 
+					dec.format(getMedian(resultsWPDP)) + "\t" + 
+					"\t" +
+					dec.format(getMedian(resultsCM)) + "\t" +
+					"\t" +
+					dec.format(getMedian(resultsIFS)) + "\t" +
+					"\t" +
+					dec.format(getMedian(resultsHDP)));
+			
+			
+			
 		} catch (REngineException | REXPMismatchException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private Double getMedian(HashMap<String, HashMap<String, ArrayList<Prediction>>> results) {
+		ArrayList<Double> medians = new ArrayList<Double>();
+		
+		for(String key:results.keySet()){
+			HashMap<String, ArrayList<Prediction>> predictionsByTarget = results.get(key);
+			
+			for(String source:predictionsByTarget.keySet()){
+				ArrayList<Double> values = new ArrayList<Double>();
+				ArrayList<Prediction> predictions = predictionsByTarget.get(source);
+				for(Prediction prediciton:predictions)
+					values.add(prediciton.AUC);
+				medians.add(getMedian(values));
+			}	
+		}
+		
+		return getMedian(medians);
 	}
 
 	private HashMap<String, ArrayList<Double>> getMapMedians(HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsHDP) {
