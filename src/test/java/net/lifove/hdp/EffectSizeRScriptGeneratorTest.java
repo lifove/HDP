@@ -30,7 +30,7 @@ public class EffectSizeRScriptGeneratorTest {
 		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
 		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C0.05_ChiSquare.txt",false);
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
-		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
+		//ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
 		
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		ArrayList<String> validHDPPrediction = new ArrayList<String>(); // value: source target repeat folder
@@ -82,9 +82,9 @@ public class EffectSizeRScriptGeneratorTest {
 		
 		// get HashMap from CM results
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsCM = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
-		System.err.println(linesCM.size());
+		//System.err.println(linesCM.size());
 		int lineCount=0;
-		for(String line:linesCM){
+		/*for(String line:linesCM){
 			++lineCount;
 			if(lineCount%1000==0)
 				System.err.println("CM: " + lineCount);
@@ -112,7 +112,7 @@ public class EffectSizeRScriptGeneratorTest {
 				}
 				resultsCM.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
 			}
-		}
+		}*/
 		
 		// get HashMap from IFS results
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsIFS = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
@@ -177,6 +177,7 @@ public class EffectSizeRScriptGeneratorTest {
 			RConnection c= new RConnection();
 			c.eval("library('effsize')");
 			for(String key: resultsHDP.keySet()){
+				System.out.println("target: " + key);
 				HashMap<String,ArrayList<Prediction>> predicitonsHDPBySource = resultsHDP.get(key);
 				HashMap<String,ArrayList<Prediction>> predicitonsWPDPBySource = resultsWPDP.get(key);
 				HashMap<String,ArrayList<Prediction>> predicitonsCMBySource = resultsCM.get(key);
@@ -224,7 +225,7 @@ public class EffectSizeRScriptGeneratorTest {
 					ArrayList<Prediction> predicitonsIFS = predicitonsIFSBySource.get(srcKey);
 					
 					for(int i=0; i<predicitonsIFS.size();i++){
-						cm.add(predicitonsIFS.get(i).AUC);
+						ifs.add(predicitonsIFS.get(i).AUC);
 					}
 				}
 				c.assign("control", Doubles.toArray(ifs));
