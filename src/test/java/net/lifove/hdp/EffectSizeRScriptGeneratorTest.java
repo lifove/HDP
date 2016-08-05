@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -33,10 +34,15 @@ public class EffectSizeRScriptGeneratorTest {
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
 		
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
-		ArrayList<String> validHDPPrediction = new ArrayList<String>(); // value: source target repeat folder
+		HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsWPDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		
+		/*int millis = 1000;
+		long startTime = System.currentTimeMillis();
+		System.out.println("Start process HDP results: " + (int)startTime/millis + "s");*/
+		
 		// get HashMap from HDP results
+		//int lineCount = 0;
 		for(String line:linesHDP){
 			
 			String[] splitLine = line.split(",");
@@ -78,22 +84,25 @@ public class EffectSizeRScriptGeneratorTest {
 				}
 				resultsWPDP.get(target).get(source).add(new Prediction(source,target,fold,repeat,wAUC));
 			}
+			
+			//if(++lineCount%1000==0)
+			//	System.out.println("Processing HDP results(" + lineCount + "): " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
 		}
+		//System.out.println("End process HDP results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
 		
 		// get HashMap from CM results
+		//System.out.println("Start process CM results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsCM = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
-		System.err.println(linesCM.size());
-		int lineCount=0;
+		//lineCount = 0;
 		for(String line:linesCM){
-			++lineCount;
-			if(lineCount%1000==0)
-				System.err.println("CM: " + lineCount);
 			String[] splitLine = line.split(",");
 			String source = splitLine[2].split("/")[1].replace(".arff", "");
 			String target = splitLine[3].split("/")[1].replace(".arff", "");
 			int repeat = Integer.parseInt(splitLine[0]);
 			int fold =  Integer.parseInt(splitLine[1]);
 			Double AUC = Double.parseDouble(splitLine[12]);
+			
+			//++lineCount;
 			
 			// only consider valid prediction from HDP results
 			if(!validHDPPrediction.contains((source+target+repeat+ "," + fold))) continue;
@@ -112,21 +121,21 @@ public class EffectSizeRScriptGeneratorTest {
 				}
 				resultsCM.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
 			}
+			
+			//if(lineCount%1000==0)
+			//	System.out.println("Processing CM results(" + lineCount + "): " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
 		}
+		//System.out.println("End process CM results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
 		
 		// get HashMap from IFS results
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsIFS = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
-		System.err.println(linesIFS.size());
+		//System.err.println(linesIFS.size());
 		int repeat=0;
 		int fold = 0;
-		lineCount=0;
 		for(String line:linesIFS){
 			String[] splitLine = line.split(",");
 			if(splitLine[0].trim().equals("A")) continue;
-			++lineCount;
-			if(lineCount%1000==0)
-				System.err.println("IFS: " + lineCount);
-			
+		
 			String source = splitLine[1].split(">>")[0];
 			String target = splitLine[1].split(">>")[1];
 			Double AUC = Double.parseDouble(splitLine[9]);
@@ -179,7 +188,6 @@ public class EffectSizeRScriptGeneratorTest {
 			RConnection c= new RConnection();
 			c.eval("library('effsize')");
 			for(String key: resultsHDP.keySet()){
-				System.out.println("target: " + key);
 				HashMap<String,ArrayList<Prediction>> predicitonsHDPBySource = resultsHDP.get(key);
 				HashMap<String,ArrayList<Prediction>> predicitonsWPDPBySource = resultsWPDP.get(key);
 				HashMap<String,ArrayList<Prediction>> predicitonsCMBySource = resultsCM.get(key);
