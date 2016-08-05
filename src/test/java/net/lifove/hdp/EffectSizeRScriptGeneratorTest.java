@@ -138,7 +138,7 @@ public class EffectSizeRScriptGeneratorTest {
 				ArrayList<Prediction> prediction = new ArrayList<Prediction>();
 				prediction.add(new Prediction(source,target,fold,repeat,AUC));
 				resultsHDPBySource.put(source,prediction);
-				resultsCM.put(target, resultsHDPBySource);
+				resultsIFS.put(target, resultsHDPBySource);
 			}else{
 				if(!resultsIFS.get(target).containsKey(source)){
 					ArrayList<Prediction> prediction = new ArrayList<Prediction>();
