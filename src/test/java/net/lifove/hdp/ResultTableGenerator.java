@@ -278,15 +278,23 @@ public class ResultTableGenerator {
 				c.assign("control", Doubles.toArray(ifs));
 				RList lIFS = c.eval("cliff.delta(treatment,control)").asList();
 				
+				Double wAUC = getMedian(mediansWPDP.get(key));
+				Double wAUCCliffDelta = lWPDP.at("estimate").asDouble();
+				Double cmAUC = getMedian(mediansCM.get(key));
+				Double cmAUCCliffDelta = lCM.at("estimate").asDouble();
+				Double ifsAUC = getMedian(mediansIFS.get(key));
+				Double ifsAUCCliffDelta = lIFS.at("estimate").asDouble();
+				
+				String wAUCMagnitute = getCliffsDeltaMagnitute(wAUCCliffDelta);
+				String cmAUCMagnitute = getCliffsDeltaMagnitute(cmAUCCliffDelta);
+				String ifsAUCMagnitute = getCliffsDeltaMagnitute(ifsAUCCliffDelta);
+				
 				System.out.println(orderedProjectName.indexOf(key) + "\t" + 
-							key.replace(".arff","") + "\t" + 
-							dec.format(getMedian(mediansWPDP.get(key))) + "\t" + 
-							dec.format(lWPDP.at("estimate").asDouble()) + "\t" +
-							dec.format(getMedian(mediansCM.get(key))) + "\t" +
-							dec.format(lCM.at("estimate").asDouble()) + "\t" +
-							dec.format(getMedian(mediansIFS.get(key))) + "\t" +
-							dec.format(lIFS.at("estimate").asDouble()) + "\t" +
-							dec.format(getMedian(mediansHDP.get(key))));
+							key.replace(".arff","") + "\t&" +
+							dec.format(wAUC) + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
+							dec.format(cmAUC) + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
+							dec.format(ifsAUC) + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
+							dec.format(getMedian(mediansHDP.get(key))) + " \\\\ \\hline");
 			}
 			System.out.println("-\tMedian\t" + 
 					dec.format(getMedian(resultsWPDP)) + "\t" + 
@@ -302,6 +310,20 @@ public class ResultTableGenerator {
 		} catch (REngineException | REXPMismatchException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private String getCliffsDeltaMagnitute(Double wAUCCliffDelta) {
+		
+		Double absValue = Math.abs(wAUCCliffDelta);
+		
+		if(absValue>=0.474)
+			return "L";
+		if(absValue>=0.33)
+			return "M";
+		if(absValue>=0.147)
+			return "S";
+
+		return "N";
 	}
 
 	private Double getMedian(HashMap<String, HashMap<String, ArrayList<Prediction>>> results) {
