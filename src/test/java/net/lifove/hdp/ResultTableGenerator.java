@@ -21,7 +21,7 @@ import org.rosuda.REngine.Rserve.RConnection;
 import com.google.common.primitives.Doubles;
 
 
-public class EffectSizeRScriptGeneratorTest {
+public class ResultTableGenerator {
 	
 	DecimalFormat dec = new DecimalFormat("0.000");
 	
