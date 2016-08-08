@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -63,12 +64,12 @@ public class ExpRunnerTest {
 				"AEEEM/ML.arff"
 		};
 		
-		String pathToDataset = System.getProperty("user.home") + "/HDP/data/";
+		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 		FeatureSelectors fSelector = FeatureSelectors.Significance;
+		DecimalFormat dec = new DecimalFormat("0.00");
 		for(double cutoff=0.10;cutoff<1.0;cutoff=cutoff+0.05){
-		
 			
-			Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + cutoff + "_" + fSelector.name()+ ".txt");
+			Path path = Paths.get(System.getProperty("user.home") + "/HDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ ".txt");
 			
 			HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 			
