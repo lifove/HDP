@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
 import org.junit.Test;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
@@ -65,7 +66,7 @@ public class ResultTableGenerator {
 		orderedProjectName.add("ar6");
 		
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
 		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C0.05_ChiSquare.txt",false);
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
@@ -92,9 +93,9 @@ public class ResultTableGenerator {
 			
 			if(!resultsHDP.containsKey(target)){
 				HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
-				ArrayList<Prediction> prediction = new ArrayList<Prediction>();
-				prediction.add(new Prediction(source,target,fold,repeat,AUC));
-				resultsHDPBySource.put(source,prediction);
+				ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+				predictions.add(new Prediction(source,target,fold,repeat,AUC));
+				resultsHDPBySource.put(source,predictions);
 				resultsHDP.put(target, resultsHDPBySource);
 				validHDPPrediction.add(source+target+repeat+ "," + fold);
 			}else{
@@ -109,9 +110,9 @@ public class ResultTableGenerator {
 			
 			if(!resultsWPDP.containsKey(target)){
 				HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
-				ArrayList<Prediction> prediction = new ArrayList<Prediction>();
-				prediction.add(new Prediction(source,target,fold,repeat,wAUC));
-				resultsHDPBySource.put(source,prediction);
+				ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+				predictions.add(new Prediction(source,target,fold,repeat,wAUC));
+				resultsHDPBySource.put(source,predictions);
 				resultsWPDP.put(target, resultsHDPBySource);
 			}else{
 				if(!resultsWPDP.get(target).containsKey(source)){
@@ -146,9 +147,9 @@ public class ResultTableGenerator {
 			
 			if(!resultsCM.containsKey(target)){
 				HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
-				ArrayList<Prediction> prediction = new ArrayList<Prediction>();
-				prediction.add(new Prediction(source,target,fold,repeat,AUC));
-				resultsHDPBySource.put(source,prediction);
+				ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+				predictions.add(new Prediction(source,target,fold,repeat,AUC));
+				resultsHDPBySource.put(source,predictions);
 				resultsCM.put(target, resultsHDPBySource);
 			}else{
 				if(!resultsCM.get(target).containsKey(source)){
@@ -182,9 +183,9 @@ public class ResultTableGenerator {
 			
 			if(!resultsIFS.containsKey(target)){
 				HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
-				ArrayList<Prediction> prediction = new ArrayList<Prediction>();
-				prediction.add(new Prediction(source,target,fold,repeat,AUC));
-				resultsHDPBySource.put(source,prediction);
+				ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+				predictions.add(new Prediction(source,target,fold,repeat,AUC));
+				resultsHDPBySource.put(source,predictions);
 				resultsIFS.put(target, resultsHDPBySource);
 			}else{
 				if(!resultsIFS.get(target).containsKey(source)){
@@ -205,12 +206,6 @@ public class ResultTableGenerator {
 			}
 		}
 		
-		// get medians
-		HashMap<String, ArrayList<Double>> mediansHDP = getMapMedians(resultsHDP);
-		HashMap<String, ArrayList<Double>> mediansWPDP = getMapMedians(resultsWPDP);
-		HashMap<String, ArrayList<Double>> mediansCM = getMapMedians(resultsCM);
-		HashMap<String, ArrayList<Double>> mediansIFS = getMapMedians(resultsIFS);
-		
 		/*
 		 *  treatment <-c(1,2,3)
 		 *  control <-c(1,2,3)
@@ -224,30 +219,48 @@ public class ResultTableGenerator {
 			 */
 			RConnection c= new RConnection();
 			c.eval("library('effsize')");
+			HashMap<Integer,String> resultLines = new HashMap<Integer,String>();
+			HashMap<Integer,String> resultLinesWinTieLoss = new HashMap<Integer,String>();
+			int[] totalWPDPWTL = {0,0,0};
+			int[] totalCMWTL = {0,0,0};
+			int[] totalIFSWTL = {0,0,0};
 			for(String key: resultsHDP.keySet()){
+				String target = key;
 				HashMap<String,ArrayList<Prediction>> predicitonsHDPBySource = resultsHDP.get(key);
 				HashMap<String,ArrayList<Prediction>> predicitonsWPDPBySource = resultsWPDP.get(key);
 				HashMap<String,ArrayList<Prediction>> predicitonsCMBySource = resultsCM.get(key);
 				HashMap<String,ArrayList<Prediction>> predicitonsIFSBySource = resultsIFS.get(key);
 				
+				
+				// compute effsize: compare all values between treatment and control by a corresponding source
+				
 				// treatment
 				ArrayList<Double> treatment = new ArrayList<Double>();
+				ArrayList<Double> mediansHDP = new ArrayList<Double>();
+				ArrayList<String> validSources = new ArrayList<String>();
 				for(String srcKey:predicitonsHDPBySource.keySet()){
+					validSources.add(srcKey);
 					ArrayList<Prediction> predicitonsHDP = predicitonsHDPBySource.get(srcKey);
 					
+					ArrayList<Double> aucValues = new ArrayList<Double>();
 					for(int i=0; i<predicitonsHDP.size();i++){
 						treatment.add(predicitonsHDP.get(i).AUC);
+						aucValues.add(predicitonsHDP.get(i).AUC);
 					}
+					mediansHDP.add(getMedian(aucValues));
 				}
 				
 				// WPDP
 				ArrayList<Double> wpdp = new ArrayList<Double>();
-				for(String srcKey:predicitonsWPDPBySource.keySet()){
+				ArrayList<Double> mediansWPDP = new ArrayList<Double>();
+				for(String srcKey:validSources){
 					ArrayList<Prediction> predicitonsWPDP = predicitonsWPDPBySource.get(srcKey);
-					
+					ArrayList<Double> aucValues = new ArrayList<Double>();
 					for(int i=0; i<predicitonsWPDP.size();i++){
 						wpdp.add(predicitonsWPDP.get(i).AUC);
+						aucValues.add(predicitonsWPDP.get(i).AUC);
 					}
+					mediansWPDP.add(getMedian(aucValues));
 				}
 				
 				c.assign("treatment", Doubles.toArray(treatment));
@@ -256,77 +269,239 @@ public class ResultTableGenerator {
 				
 				// CM
 				ArrayList<Double> cm = new ArrayList<Double>();
-				for(String srcKey:predicitonsCMBySource.keySet()){
+				ArrayList<Double> mediansCM = new ArrayList<Double>();
+				for(String srcKey:validSources){
 					ArrayList<Prediction> predicitonsCM = predicitonsCMBySource.get(srcKey);
-					
+					ArrayList<Double> aucValues = new ArrayList<Double>();
 					for(int i=0; i<predicitonsCM.size();i++){
 						cm.add(predicitonsCM.get(i).AUC);
+						aucValues.add(predicitonsCM.get(i).AUC);
 					}
+					mediansCM.add(getMedian(aucValues));
 				}
+				
 				c.assign("control", Doubles.toArray(cm));
 				RList lCM = c.eval("cliff.delta(treatment,control)").asList();
 				
 				// IFS
 				ArrayList<Double> ifs = new ArrayList<Double>();
-				for(String srcKey:predicitonsIFSBySource.keySet()){
+				ArrayList<Double> mediansIFS = new ArrayList<Double>();
+				for(String srcKey:validSources){
 					ArrayList<Prediction> predicitonsIFS = predicitonsIFSBySource.get(srcKey);
-					
+					ArrayList<Double> aucValues = new ArrayList<Double>();
 					for(int i=0; i<predicitonsIFS.size();i++){
 						ifs.add(predicitonsIFS.get(i).AUC);
+						aucValues.add(predicitonsIFS.get(i).AUC);
 					}
+					mediansIFS.add(getMedian(aucValues));
 				}
 				c.assign("control", Doubles.toArray(ifs));
 				RList lIFS = c.eval("cliff.delta(treatment,control)").asList();
 				
-				Double wAUC = getMedian(mediansWPDP.get(key));
+				
+				// get result lines
+				Double wAUC = getMedian(mediansWPDP);
 				Double wAUCCliffDelta = lWPDP.at("estimate").asDouble();
-				Double cmAUC = getMedian(mediansCM.get(key));
+				Double cmAUC = getMedian(mediansCM);
 				Double cmAUCCliffDelta = lCM.at("estimate").asDouble();
-				Double ifsAUC = getMedian(mediansIFS.get(key));
+				Double ifsAUC = getMedian(mediansIFS);
 				Double ifsAUCCliffDelta = lIFS.at("estimate").asDouble();
+				Double hdpAUC = getMedian(mediansHDP);
 				
 				String wAUCMagnitute = getCliffsDeltaMagnitute(wAUCCliffDelta);
 				String cmAUCMagnitute = getCliffsDeltaMagnitute(cmAUCCliffDelta);
 				String ifsAUCMagnitute = getCliffsDeltaMagnitute(ifsAUCCliffDelta);
 				
-				System.out.println(orderedProjectName.indexOf(key) + "\t" + 
-							key.replace(".arff","") + "\t&" +
-							dec.format(wAUC) + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
-							dec.format(cmAUC) + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
-							dec.format(ifsAUC) + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
-							dec.format(getMedian(mediansHDP.get(key))) + " \\\\ \\hline");
+				String strHDPAUC = dec.format(hdpAUC);
+				
+				if(isSignificantByWilcoxonTest(mediansWPDP,mediansHDP))
+					strHDPAUC = "{\\bf " + strHDPAUC + "}";
+				
+				if(isSignificantByWilcoxonTest(mediansCM,mediansHDP))
+					strHDPAUC = "{\\underline" + strHDPAUC + "}";
+				
+				if(isSignificantByWilcoxonTest(mediansIFS,mediansHDP))
+					strHDPAUC = strHDPAUC + "*";
+				
+				resultLines.put(orderedProjectName.indexOf(key), target + "\t&" +
+						dec.format(wAUC) + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
+						dec.format(cmAUC) + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
+						dec.format(ifsAUC) + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
+						strHDPAUC + " \\\\ \\hline");
+				
+				//get results liens for Win/Tie/Loss evaluation
+				int[] wpdpWTL = {0,0,0}; // W/T/L against WPDP;
+				int[] cmWTL = {0,0,0}; // W/T/L against CM;
+				int[] ifsWTL = {0,0,0}; // W/T/L against IFS;
+				for(String source:predicitonsHDPBySource.keySet()){
+					ArrayList<Prediction> hdpPredicitons = predicitonsHDPBySource.get(source);
+					ArrayList<Prediction> wdpPredictions = predicitonsWPDPBySource.get(source);
+					ArrayList<Prediction> cmPredictions = predicitonsCMBySource.get(source);
+					ArrayList<Prediction> ifsPredictins = predicitonsIFSBySource.get(source);
+					
+					ArrayList<Double> hdpAUCs = new ArrayList<Double>();
+					ArrayList<Double> wpdpAUCs = new ArrayList<Double>();
+					ArrayList<Double> cmAUCs = new ArrayList<Double>();
+					ArrayList<Double> ifsAUCs = new ArrayList<Double>();
+					for(int i=0; i<1000;i++){
+						hdpAUCs.add(hdpPredicitons.get(i).AUC);
+						wpdpAUCs.add(wdpPredictions.get(i).AUC);
+						cmAUCs.add(cmPredictions.get(i).AUC);
+						ifsAUCs.add(ifsPredictins.get(i).AUC);
+					}
+					
+					wpdpWTL = updateWTL(wpdpWTL,wpdpAUCs,hdpAUCs);
+					cmWTL = updateWTL(cmWTL,cmAUCs,hdpAUCs);
+					ifsWTL = updateWTL(ifsWTL,ifsAUCs,hdpAUCs);
+				}
+				
+				totalWPDPWTL[0] += wpdpWTL[0];
+				totalWPDPWTL[1] += wpdpWTL[1];
+				totalWPDPWTL[2] += wpdpWTL[2];
+				
+				totalCMWTL[0] += cmWTL[0];
+				totalCMWTL[1] += cmWTL[1];
+				totalCMWTL[2] += cmWTL[2];
+				
+				totalIFSWTL[0] += ifsWTL[0];
+				totalIFSWTL[1] += ifsWTL[1];
+				totalIFSWTL[2] += ifsWTL[2];
+				
+				String strWTL = target + "\t&" + wpdpWTL[0] +"\t&" + wpdpWTL[1] +" \t&" + wpdpWTL[2] +
+							"\t&" + cmWTL[0] +"\t&" + cmWTL[1] +" \t&" + cmWTL[2] +
+							"\t&" + ifsWTL[0] +"\t&" + ifsWTL[1] +" \t&" + ifsWTL[2] + "\\\\ \\hline";
+				
+				resultLinesWinTieLoss.put(orderedProjectName.indexOf(key), strWTL);
 			}
-			System.out.println("-\tMedian\t" + 
-					dec.format(getMedian(resultsWPDP)) + "\t" + 
-					"\t" +
-					dec.format(getMedian(resultsCM)) + "\t" +
-					"\t" +
-					dec.format(getMedian(resultsIFS)) + "\t" +
-					"\t" +
-					dec.format(getMedian(resultsHDP)));
+			
+			// total WTL
+			resultLinesWinTieLoss.put(orderedProjectName.size(), "Total\t&" + totalWPDPWTL[0] +"\t&" + totalWPDPWTL[1] +" \t&" + totalWPDPWTL[2] +
+					"\t&" + totalCMWTL[0] +"\t&" + totalCMWTL[1] +" \t&" + totalCMWTL[2] +
+					"\t&" + totalIFSWTL[0] +"\t&" + totalIFSWTL[1] +" \t&" + totalIFSWTL[2] + "\\\\ \\hline");
 			
 			
+			for(int i=0;i<resultLines.size();i++){
+				System.out.println(resultLines.get(i));
+			}
+			
+			String wpdpMedian = dec.format(getMedian(resultsWPDP));
+			String cmMedian = dec.format(getMedian(resultsCM));
+			String ifsMedian = dec.format(getMedian(resultsIFS));
+			String hdpMedian = dec.format(getMedian(resultsHDP));
+			
+			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+				hdpMedian = "{\\bf " + hdpMedian + "}";
+			
+			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+				hdpMedian = "{\\underline" + hdpMedian + "}";
+			
+			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+				hdpMedian = hdpMedian + "*";
+			
+			
+			System.out.println("\\hline\n{\\bf {\\em All}}\t&" + 
+					wpdpMedian + "\t" + 
+					"\t&" +
+					cmMedian + "\t" +
+					"\t&" +
+					ifsMedian + "\t" +
+					"\t&" +
+					hdpMedian);
+			
+			
+			for(int i=0;i<resultLinesWinTieLoss.size();i++){
+				System.out.println(resultLinesWinTieLoss.get(i));
+			}
 			
 		} catch (REngineException | REXPMismatchException e) {
 			e.printStackTrace();
 		}
 	}
 
+	private int[] updateWTL(int[] wtlValues, ArrayList<Double> baselineAUCs, ArrayList<Double> hdpAUCs) {
+		
+		WilcoxonSignedRankTest statTest = new WilcoxonSignedRankTest();
+		double p = statTest.wilcoxonSignedRankTest(Doubles.toArray(baselineAUCs), Doubles.toArray(hdpAUCs),false);
+
+		Double medeanA = getMedian(baselineAUCs);
+		Double medeanB = getMedian(hdpAUCs);
+		
+		
+		// win
+		if(p<0.05 && medeanA < medeanB){
+			wtlValues[0]++;
+			return wtlValues;
+		}
+		
+		// loss
+		if(p<0.05 && medeanA > medeanB){
+			wtlValues[2]++;
+			return wtlValues;
+		}
+		
+		// otherwise, tie
+		wtlValues[1]++;
+		
+		return wtlValues;
+	}
+
+	private boolean isSignificantByWilcoxonTest(ArrayList<Double> mediansA,
+			ArrayList<Double> mediansB) {
+
+		WilcoxonSignedRankTest statTest = new WilcoxonSignedRankTest();
+
+		double p = statTest.wilcoxonSignedRankTest(Doubles.toArray(mediansA), Doubles.toArray(mediansB),false);
+
+		Double medeanA = getMedian(mediansA);
+		Double medeanB = getMedian(mediansB);
+		
+		if(medeanA < medeanB && p < 0.05)
+			return true;
+		
+		
+		return false;
+	}
+
+	private boolean isSignificantByWilcoxonTest(HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsA,
+			HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsB) {
+		
+		ArrayList<Double> mediansA = getMedians(resultsA);
+		ArrayList<Double> mediansB = getMedians(resultsB);
+		
+		
+		WilcoxonSignedRankTest statTest = new WilcoxonSignedRankTest();
+
+		double p = statTest.wilcoxonSignedRankTest(Doubles.toArray(mediansA), Doubles.toArray(mediansB),false);
+
+		Double medeanA = getMedian(mediansA);
+		Double medeanB = getMedian(mediansB);
+		
+		if(medeanA < medeanB && p < 0.05)
+			return true;
+		
+		return false;
+	}
+
 	private String getCliffsDeltaMagnitute(Double wAUCCliffDelta) {
 		
 		Double absValue = Math.abs(wAUCCliffDelta);
-		
+	
 		if(absValue>=0.474)
-			return "L";
+			return wAUCCliffDelta>0?"{\\bf L}":"L";
 		if(absValue>=0.33)
-			return "M";
+			return wAUCCliffDelta>0?"{\\bf M}":"M";
 		if(absValue>=0.147)
-			return "S";
-
-		return "N";
+			return wAUCCliffDelta>0?"{\\bf S}":"S";
+			
+		return "{\\bf N}";
 	}
 
 	private Double getMedian(HashMap<String, HashMap<String, ArrayList<Prediction>>> results) {
+		ArrayList<Double> medians = getMedians(results);
+		return getMedian(medians);
+	}
+
+	private ArrayList<Double> getMedians(HashMap<String, HashMap<String, ArrayList<Prediction>>> results) {
 		ArrayList<Double> medians = new ArrayList<Double>();
 		
 		for(String key:results.keySet()){
@@ -340,8 +515,7 @@ public class ResultTableGenerator {
 				medians.add(getMedian(values));
 			}	
 		}
-		
-		return getMedian(medians);
+		return medians;
 	}
 
 	private HashMap<String, ArrayList<Double>> getMapMedians(HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsHDP) {
