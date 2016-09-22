@@ -68,6 +68,28 @@ public class Utils {
 		return instances;
 	}
 	
+	static public ArrayList<String> getLines(String file,boolean removeHeader){
+		ArrayList<String> lines = new ArrayList<String>();
+		String thisLine="";
+		//Open the file for reading
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			while ((thisLine = br.readLine()) != null) { // while loop begins here
+				lines.add(thisLine);
+			} // end while 
+			br.close();
+		} // end try
+		catch (IOException e) {
+			System.err.println("Error: " + e);
+			//System.exit(0);
+		}
+		
+		if(removeHeader)
+			lines.remove(0);
+		
+		return lines;
+	}
+	
 	
 	public static enum FeatureSelectors {
 		ChiSquare,
@@ -97,7 +119,7 @@ public class Utils {
 	 * @param numSelected the number features to be selected.
 	 * @return
 	 */
-	static public Instances featrueSelectionByChiSquare(Instances data,int numSelected){
+	static public Instances featrueSelectionBySignificanceAttributeEval(Instances data,int numSelected){
 		Instances newData = null;
 
 		AttributeSelection filter = new AttributeSelection();  // package weka.filters.supervised.attribute!
@@ -125,7 +147,7 @@ public class Utils {
 	 * @param numSelected the number features to be selected.
 	 * @return
 	 */
-	static public Instances featrueSelectionBySignificanceAttributeEval(Instances data,int numSelected){
+	static public Instances featrueSelectionByChiSquare(Instances data,int numSelected){
 		Instances newData = null;
 
 		AttributeSelection filter = new AttributeSelection();  // package weka.filters.supervised.attribute!

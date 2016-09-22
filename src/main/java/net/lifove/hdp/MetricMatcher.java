@@ -15,6 +15,7 @@ public class MetricMatcher {
 	Instances target;
 	double cutoff;
 	int threadPoolSize=10;
+	HashMap<String,Double> matchingScores = new HashMap<String,Double>();
 	
 	public MetricMatcher(Instances source, Instances target, double cutoff, int threadPoolSize){
 		this.source = source;
@@ -23,40 +24,56 @@ public class MetricMatcher {
 		this.threadPoolSize = threadPoolSize;
 	}
 
+	public MetricMatcher(Instances source, Instances target, double cutoff,
+			HashMap<String, Double> matchingScores) {
+		this.source = source;
+		this.target = target;
+		this.cutoff = cutoff;
+		this.matchingScores = matchingScores;
+	}
+
 	public ArrayList<String> match() {
 		ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
 		
-		ArrayList<Runnable> threads = new ArrayList<Runnable>();
-		for(int srcAttrIdx = 0; srcAttrIdx < source.numAttributes(); srcAttrIdx++){
-			if(srcAttrIdx==source.classIndex())
-				continue;
-			for(int tarAttrIdx = 0; tarAttrIdx < target.numAttributes(); tarAttrIdx++){
-				if(tarAttrIdx==target.classIndex())
+		if(matchingScores.size()==0){
+		
+			ArrayList<Runnable> threads = new ArrayList<Runnable>();
+			for(int srcAttrIdx = 0; srcAttrIdx < source.numAttributes(); srcAttrIdx++){
+				if(srcAttrIdx==source.classIndex())
 					continue;
-				
-				double[] sourceMetric=source.attributeToDoubleArray(srcAttrIdx);
-				double[] targetMetric=target.attributeToDoubleArray(tarAttrIdx);
-				
-				Runnable ksAnalyzer = new KSAnalyzer(sourceMetric,targetMetric,source.attribute(srcAttrIdx).name()+"-"+target.attribute(tarAttrIdx).name());
-				threads.add(ksAnalyzer);
-				executor.execute(ksAnalyzer);
+				for(int tarAttrIdx = 0; tarAttrIdx < target.numAttributes(); tarAttrIdx++){
+					if(tarAttrIdx==target.classIndex())
+						continue;
+					
+					double[] sourceMetric=source.attributeToDoubleArray(srcAttrIdx);
+					double[] targetMetric=target.attributeToDoubleArray(tarAttrIdx);
+					
+					Runnable ksAnalyzer = new KSAnalyzer(sourceMetric,targetMetric,source.attribute(srcAttrIdx).name()+"-"+target.attribute(tarAttrIdx).name());
+					threads.add(ksAnalyzer);
+					executor.execute(ksAnalyzer);
+				}
 			}
-		}
-		
-		executor.shutdown();
-		
-		while (!executor.isTerminated()) {
-			// waiting
-        }
-		
-		HashMap<String,Double> matchingScores = new HashMap<String,Double>();
-		for(Runnable runnable:threads){
-			KSAnalyzer ksAnalyzer = (KSAnalyzer)runnable;
-			if(ksAnalyzer.getMatchingScore()>cutoff){
-				matchingScores.put(ksAnalyzer.getMachingID(), ksAnalyzer.getMatchingScore());
+			
+			executor.shutdown();
+			
+			while (!executor.isTerminated()) {
+				// waiting
+	        }
+			
+			for(Runnable runnable:threads){
+				KSAnalyzer ksAnalyzer = (KSAnalyzer)runnable;
+				if(ksAnalyzer.getMatchingScore()>cutoff){
+					matchingScores.put(ksAnalyzer.getMachingID(), ksAnalyzer.getMatchingScore());
+				}
+				else{
+					matchingScores.put(ksAnalyzer.getMachingID(), -1.0); // if the matching score is not greater than the cutoff, make it as cutoff so that MWBMatchingAlgorithm can work correctly.
+				}
 			}
-			else{
-				matchingScores.put(ksAnalyzer.getMachingID(), cutoff); // if the matching score is not greater than the cutoff, make it as -1 so that MWBMatchingAlgorithm can work correctly.
+		}else{
+			// change existing matching scores based on cutoff. For correct MWB, all scores <=cutoff are replaced with -1.
+			for(String key:matchingScores.keySet()){
+				if(matchingScores.get(key)<=cutoff)
+					matchingScores.put(key, -1.0);
 			}
 		}
 		
