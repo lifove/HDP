@@ -60,8 +60,10 @@ public class Runner {
 	public String doHDP(boolean printOutResult, Instances origSource, Instances origTarget,
 			String srclabelName, String srcPosLabelValue,
 			String tarlabelName, String tarPosLabelValue, ArrayList<String> matchedMetrics, double cutoff, boolean suppress,
-			FeatureSelectors fSelector) {
+			FeatureSelectors fSelector,String srcPath,String tarPath) {
 		String resultString = "";
+		sourcePath = srcPath;
+		targetPath = tarPath;
 		if(origSource!=null && origTarget!=null){
 			origSource = new MetricSelector(origSource,fSelector).getNewInstances();
 

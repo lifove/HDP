@@ -129,7 +129,7 @@ public class ExpRunnerWithCommonFeaturesTest {
 							
 							
 							String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
-									tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, 0, true,FeatureSelectors.None);
+									tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, 0, true,FeatureSelectors.None,source,target);
 							
 							if(result.equals(""))
 								continue;

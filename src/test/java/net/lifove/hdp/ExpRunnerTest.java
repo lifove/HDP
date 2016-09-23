@@ -32,17 +32,17 @@ public class ExpRunnerTest {
 				"ReLink/Safe.arff",
 				"ReLink/Apache.arff",
 				"ReLink/Zxing.arff",
-				//"NASA/mc2.arff", // new
-				//"NASA/pc5.arff", // new
+				"NASA/mc2.arff", // new
+				"NASA/pc5.arff", // new
 				"NASA/pc1.arff",
-				//"NASA/pc2.arff", // new
-				//"NASA/jm1.arff", // new
+				"NASA/pc2.arff", // new
+				"NASA/jm1.arff", // new
 				"NASA/pc4.arff",
-				//"NASA/kc3.arff", // new
+				"NASA/kc3.arff", // new
 				"NASA/pc3.arff",
 				"NASA/mw1.arff",
 				"NASA/cm1.arff",
-				//"NASA/mc1.arff", // new
+				"NASA/mc1.arff", // new
 				"SOFTLAB/ar5.arff",
 				"SOFTLAB/ar3.arff",
 				"SOFTLAB/ar4.arff",
@@ -66,12 +66,12 @@ public class ExpRunnerTest {
 		};
 		
 		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
-		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/CDDP/CDDP/data/cofeatures_20150326_All_Matched_for_fs_none.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
+		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/CDDP/CDDP/data/cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
 		FeatureSelectors fSelector = FeatureSelectors.Significance;
 		DecimalFormat dec = new DecimalFormat("0.00");
 		for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
-			Path path = Paths.get(System.getProperty("user.home") + "/Documents/CDDP/CDDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ ".txt");
+			Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ ".txt");
 			
 			HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 			
@@ -148,7 +148,7 @@ public class ExpRunnerTest {
 								}
 								
 								String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
-										tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, cutoff, true,FeatureSelectors.None);
+										tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, cutoff, true,FeatureSelectors.None,sourceName,targetName);
 								
 								if(result.equals(""))
 									continue;
