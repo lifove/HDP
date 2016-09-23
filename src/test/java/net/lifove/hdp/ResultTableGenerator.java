@@ -30,14 +30,14 @@ public class ResultTableGenerator {
 	public void testMain() {
 		
 		ArrayList<String> orderedProjectName = new ArrayList<String>();
-		orderedProjectName.add("EQ");
-		orderedProjectName.add("JDT");
-		orderedProjectName.add("LC");
-		orderedProjectName.add("ML");
-		orderedProjectName.add("PDE");
-		orderedProjectName.add("Apache");
-		orderedProjectName.add("Safe");
-		orderedProjectName.add("Zxing");
+		orderedProjectName.add("EQ".toLowerCase());
+		orderedProjectName.add("JDT".toLowerCase());
+		orderedProjectName.add("LC".toLowerCase());
+		orderedProjectName.add("ML".toLowerCase());
+		orderedProjectName.add("PDE".toLowerCase());
+		orderedProjectName.add("Apache".toLowerCase());
+		orderedProjectName.add("Safe".toLowerCase());
+		orderedProjectName.add("Zxing".toLowerCase());
 		orderedProjectName.add("ant-1.3");
 		orderedProjectName.add("arc");
 		orderedProjectName.add("camel-1.0");
@@ -48,17 +48,17 @@ public class ResultTableGenerator {
 		orderedProjectName.add("velocity-1.4");
 		orderedProjectName.add("xalan-2.4");
 		orderedProjectName.add("xerces-1.2");
-		orderedProjectName.add("CM1");
-		orderedProjectName.add("MW1");
-		orderedProjectName.add("PC1");
-		orderedProjectName.add("PC3");
-		orderedProjectName.add("PC4");
-		orderedProjectName.add("JM1");
-		orderedProjectName.add("PC2");
-		orderedProjectName.add("PC5");
-		orderedProjectName.add("MC1");
-		orderedProjectName.add("MC2");
-		orderedProjectName.add("KC3");
+		orderedProjectName.add("CM1".toLowerCase());
+		orderedProjectName.add("MW1".toLowerCase());
+		orderedProjectName.add("PC1".toLowerCase());
+		orderedProjectName.add("PC3".toLowerCase());
+		orderedProjectName.add("PC4".toLowerCase());
+		/*orderedProjectName.add("JM1".toLowerCase());
+		orderedProjectName.add("PC2".toLowerCase());
+		orderedProjectName.add("PC5".toLowerCase());
+		orderedProjectName.add("MC1".toLowerCase());
+		orderedProjectName.add("MC2".toLowerCase());
+		orderedProjectName.add("KC3".toLowerCase());*/
 		orderedProjectName.add("ar1");
 		orderedProjectName.add("ar3");
 		orderedProjectName.add("ar4");
@@ -66,7 +66,7 @@ public class ResultTableGenerator {
 		orderedProjectName.add("ar6");
 		
 		
-		String pathToResults = System.getProperty("user.home") + "/HDP/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
 		
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
@@ -74,13 +74,13 @@ public class ResultTableGenerator {
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsCM = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsIFS = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		
-		
-		DecimalFormat dec = new DecimalFormat("0.00");
-		for(double cutoff=0.40;cutoff<1.0;cutoff=cutoff+0.05){
+		DecimalFormat decForCutoff = new DecimalFormat("0.00");
+		DecimalFormat dec = new DecimalFormat("0.000");
+		for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
-			System.out.println("\n\n====cutoff: " + dec.format(cutoff));
+			System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff));
 																
-			ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + dec.format(cutoff) + "_Significance.txt",false);
+			ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + decForCutoff.format(cutoff) + "_Significance.txt",false);
 		
 			HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 			HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder
@@ -95,8 +95,8 @@ public class ResultTableGenerator {
 			for(String line:linesHDP){
 				
 				String[] splitLine = line.split(",");
-				String source = splitLine[2].split("/")[1].replace(".arff", "");
-				String target = splitLine[3].split("/")[1].replace(".arff", "");
+				String source = splitLine[2].split("/")[1].replace(".arff", "").toLowerCase();
+				String target = splitLine[3].split("/")[1].replace(".arff", "").toLowerCase();
 				int repeat = Integer.parseInt(splitLine[0]);
 				int fold =  Integer.parseInt(splitLine[1]);
 				Double wAUC = Double.parseDouble(splitLine[8]);
@@ -145,8 +145,8 @@ public class ResultTableGenerator {
 			if(resultsCM.size()==0){
 				for(String line:linesCM){
 					String[] splitLine = line.split(",");
-					String source = splitLine[2].split("/")[1].replace(".arff", "");
-					String target = splitLine[3].split("/")[1].replace(".arff", "");
+					String source = splitLine[2].split("/")[1].replace(".arff", "").toLowerCase();
+					String target = splitLine[3].split("/")[1].replace(".arff", "").toLowerCase();
 					int repeat = Integer.parseInt(splitLine[0]);
 					int fold =  Integer.parseInt(splitLine[1]);
 					Double AUC = Double.parseDouble(splitLine[12]);
@@ -186,8 +186,8 @@ public class ResultTableGenerator {
 					String[] splitLine = line.split(",");
 					if(splitLine[0].trim().equals("A")) continue;
 				
-					String source = splitLine[1].split(">>")[0];
-					String target = splitLine[1].split(">>")[1];
+					String source = splitLine[1].split(">>")[0].toLowerCase();
+					String target = splitLine[1].split(">>")[1].toLowerCase();
 					Double AUC = Double.parseDouble(splitLine[9]);
 					
 					// only consider valid prediction from HDP results
