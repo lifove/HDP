@@ -68,101 +68,108 @@ public class ExpRunnerTest {
 		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/CDDP/CDDP/data/cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
 		FeatureSelectors fSelector = FeatureSelectors.Significance;
-		DecimalFormat dec = new DecimalFormat("0.00");
-		for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
+		DecimalFormat dec = new DecimalFormat("0.01");
+		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
-			Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ ".txt");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.00);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.50);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90);
+		//}
+	}
+
+	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,
+			FeatureSelectors fSelector, DecimalFormat dec, double cutoff) {
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ ".txt");
+		
+		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
+		
+		HashMap<String,String> withinResults = new HashMap<String,String>();
+		
+		// key srcName-tarName value = HashMap<String,Double> (key=srcAttrIdx + "-" + tarAttrIdx, score)
+		HashMap<String,HashMap<String,Double>> matchingScoresByAttributeIndices = loadExsitingMatchingScores(pathToSavedMatchingScores,"KSAnalyzer");
+		
+		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
 			
-			HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
-			
-			HashMap<String,String> withinResults = new HashMap<String,String>();
-			
-			// key srcName-tarName value = HashMap<String,Double> (key=srcAttrIdx + "-" + tarAttrIdx, score)
-			HashMap<String,HashMap<String,Double>> matchingScoresByAttributeIndices = loadExsitingMatchingScores(pathToSavedMatchingScores,"KSAnalyzer");
-			
-			try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-				
-				for(String target:projects){
-					for(String source:projects){
-						if(source.equals(target))
-							continue;
-						
-						String sourceName = source.split("/")[1].replace(".arff", "");
-						String targetName = target.split("/")[1].replace(".arff", "");
-						
-						String[] srclabelInfo = getLabelInfo(source);
-						String[] tarlabelInfo = getLabelInfo(target);
-						
-						Instances sourceInstances = Utils.loadArff(pathToDataset +  source, srclabelInfo[0]);
-						Instances targetInstances = Utils.loadArff(pathToDataset +  target, tarlabelInfo[0]);
-						
-						// Skip datasets with the same number of attributes
-						if(sameMetricSets(sourceInstances,targetInstances)){
-							System.err.println("SKIP: the number of attributes is same.: " + source + "==> " + target);
-							continue;
+			for(String target:projects){
+				for(String source:projects){
+					if(source.equals(target))
+						continue;
+					
+					String sourceName = source.split("/")[1].replace(".arff", "");
+					String targetName = target.split("/")[1].replace(".arff", "");
+					
+					String[] srclabelInfo = getLabelInfo(source);
+					String[] tarlabelInfo = getLabelInfo(target);
+					
+					Instances sourceInstances = Utils.loadArff(pathToDataset +  source, srclabelInfo[0]);
+					Instances targetInstances = Utils.loadArff(pathToDataset +  target, tarlabelInfo[0]);
+					
+					// Skip datasets with the same number of attributes
+					if(sameMetricSets(sourceInstances,targetInstances)){
+						System.err.println("SKIP: the number of attributes is same.: " + source + "==> " + target);
+						continue;
+					}
+					
+					HashMap<String,Double>  matchingScores = matchingScoresByAttributeIndices.size()!=0?
+							getMatchingScoresByAttributeNames(sourceName,targetName,sourceInstances,targetInstances,matchingScoresByAttributeIndices.get(sourceName + "-" +targetName)):null;
+					
+					sourceInstances = new MetricSelector(sourceInstances,fSelector).getNewInstances();
+					ArrayList<String> selectedSrcAttrNames = getAttrNames(sourceInstances);
+					
+					ArrayList<String> strMatchedMetrics;
+					
+					String keyForMatchedMetrics =source + target;
+					
+					if(mapMatchedMetrics.containsKey(keyForMatchedMetrics))
+						strMatchedMetrics = mapMatchedMetrics.get(keyForMatchedMetrics);
+					else{
+						//HashMap<String,Double> matchingScores = loadExsitingMatchingScores();
+						if(matchingScores.size()!=0){
+							matchingScores = getMatchingScoresBasedOnSelectedSrcAttributes(selectedSrcAttrNames,matchingScores);
+							strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,matchingScores).match();
+						}else{
+							strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,4).match();
 						}
+						mapMatchedMetrics.put(keyForMatchedMetrics, strMatchedMetrics);
+					}
+					
+					int numRuns = 500;
+					int folds =2;
+					
+					for(int repeat=0;repeat < numRuns;repeat++){
 						
-						HashMap<String,Double>  matchingScores = matchingScoresByAttributeIndices.size()!=0?
-								getMatchingScoresByAttributeNames(sourceName,targetName,sourceInstances,targetInstances,matchingScoresByAttributeIndices.get(sourceName + "-" +targetName)):null;
+						// randomize with different seed for each iteration
+						targetInstances.randomize(new Random(repeat)); 
+						targetInstances.stratify(folds);
 						
-						sourceInstances = new MetricSelector(sourceInstances,fSelector).getNewInstances();
-						ArrayList<String> selectedSrcAttrNames = getAttrNames(sourceInstances);
-						
-						ArrayList<String> strMatchedMetrics;
-						
-						String keyForMatchedMetrics =source + target;
-						
-						if(mapMatchedMetrics.containsKey(keyForMatchedMetrics))
-							strMatchedMetrics = mapMatchedMetrics.get(keyForMatchedMetrics);
-						else{
-							//HashMap<String,Double> matchingScores = loadExsitingMatchingScores();
-							if(matchingScores.size()!=0){
-								matchingScores = getMatchingScoresBasedOnSelectedSrcAttributes(selectedSrcAttrNames,matchingScores);
-								strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,matchingScores).match();
-							}else{
-								strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,4).match();
-							}
-							mapMatchedMetrics.put(keyForMatchedMetrics, strMatchedMetrics);
-						}
-						
-						int numRuns = 500;
-						int folds =2;
-						
-						for(int repeat=0;repeat < numRuns;repeat++){
+						for(int fold = 0; fold < folds; fold++){
+							String withinResult = "";
 							
-							// randomize with different seed for each iteration
-							targetInstances.randomize(new Random(repeat)); 
-							targetInstances.stratify(folds);
-							
-							for(int fold = 0; fold < folds; fold++){
-								String withinResult = "";
-								
-								String key = target + repeat + "," + fold; 
-								if(withinResults.containsKey(key))
-									withinResult = withinResults.get(key);
-								else{
-									withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
-														targetInstances.testCV(folds, fold),
-														tarlabelInfo[1]);
-									withinResults.put(key,withinResult);		
-								}
-								
-								String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
-										tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, cutoff, true,FeatureSelectors.None,sourceName,targetName);
-								
-								if(result.equals(""))
-									continue;
-								
-								writer.write(repeat + "," +fold + "," + source + "," + target + "," + 
-												source + target + "," +
-												withinResult + ","+ result + "\n" );
+							String key = target + repeat + "," + fold; 
+							if(withinResults.containsKey(key))
+								withinResult = withinResults.get(key);
+							else{
+								withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
+													targetInstances.testCV(folds, fold),
+													tarlabelInfo[1]);
+								withinResults.put(key,withinResult);		
 							}
+							
+							String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
+									tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, cutoff, true,FeatureSelectors.None,sourceName,targetName);
+							
+							if(result.equals(""))
+								continue;
+							
+							writer.write(repeat + "," +fold + "," + source + "," + target + "," + 
+											source + target + "," +
+											withinResult + ","+ result + "\n" );
 						}
 					}
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	

@@ -53,12 +53,12 @@ public class ResultTableGenerator {
 		orderedProjectName.add("PC1".toLowerCase());
 		orderedProjectName.add("PC3".toLowerCase());
 		orderedProjectName.add("PC4".toLowerCase());
-		/*orderedProjectName.add("JM1".toLowerCase());
+		orderedProjectName.add("JM1".toLowerCase());
 		orderedProjectName.add("PC2".toLowerCase());
 		orderedProjectName.add("PC5".toLowerCase());
 		orderedProjectName.add("MC1".toLowerCase());
 		orderedProjectName.add("MC2".toLowerCase());
-		orderedProjectName.add("KC3".toLowerCase());*/
+		orderedProjectName.add("KC3".toLowerCase());
 		orderedProjectName.add("ar1");
 		orderedProjectName.add("ar3");
 		orderedProjectName.add("ar4");
@@ -66,7 +66,7 @@ public class ResultTableGenerator {
 		orderedProjectName.add("ar6");
 		
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents//HDP/Results/";
 		
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
@@ -76,359 +76,384 @@ public class ResultTableGenerator {
 		
 		DecimalFormat decForCutoff = new DecimalFormat("0.00");
 		DecimalFormat dec = new DecimalFormat("0.000");
-		for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
-			
-			System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff));
-																
-			ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + decForCutoff.format(cutoff) + "_Significance.txt",false);
 		
-			HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
-			HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder
-			HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsWPDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
+		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
-			/*int millis = 1000;
-			long startTime = System.currentTimeMillis();
-			System.out.println("Start process HDP results: " + (int)startTime/millis + "s");*/
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
+					0.90);
+		//}
+	}
+
+	private void generate(ArrayList<String> orderedProjectName, String pathToResults, ArrayList<String> linesIFS,
+			ArrayList<String> linesCM, HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsCM,
+			HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsIFS, DecimalFormat decForCutoff,
+			DecimalFormat dec, double cutoff) {
+		System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff));
+															
+		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + decForCutoff.format(cutoff) + "_Significance.txt",false);
+
+		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
+		HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder
+		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsWPDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
+		
+		/*int millis = 1000;
+		long startTime = System.currentTimeMillis();
+		System.out.println("Start process HDP results: " + (int)startTime/millis + "s");*/
+		
+		// get HashMap from HDP results
+		//int lineCount = 0;
+		for(String line:linesHDP){
 			
-			// get HashMap from HDP results
-			//int lineCount = 0;
-			for(String line:linesHDP){
-				
+			String[] splitLine = line.split(",");
+			String source = splitLine[2].split("/")[1].replace(".arff", "").toLowerCase();
+			String target = splitLine[3].split("/")[1].replace(".arff", "").toLowerCase();
+			int repeat = Integer.parseInt(splitLine[0]);
+			int fold =  Integer.parseInt(splitLine[1]);
+			Double wAUC = Double.parseDouble(splitLine[8]);
+			Double AUC = Double.parseDouble(splitLine[12]);
+			
+			if(!resultsHDP.containsKey(target)){
+				HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
+				ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+				predictions.add(new Prediction(source,target,fold,repeat,AUC));
+				resultsHDPBySource.put(source,predictions);
+				resultsHDP.put(target, resultsHDPBySource);
+				validHDPPrediction.add(source+target+repeat+ "," + fold);
+			}else{
+				if(!resultsHDP.get(target).containsKey(source)){
+					ArrayList<Prediction> prediction = new ArrayList<Prediction>();
+					prediction.add(new Prediction(source,target,fold,repeat,AUC));
+					resultsHDP.get(target).put(source,prediction);
+				}
+				resultsHDP.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
+				validHDPPrediction.add(source+target+repeat+ "," + fold);
+			}
+			
+			if(!resultsWPDP.containsKey(target)){
+				HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
+				ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+				predictions.add(new Prediction(source,target,fold,repeat,wAUC));
+				resultsHDPBySource.put(source,predictions);
+				resultsWPDP.put(target, resultsHDPBySource);
+			}else{
+				if(!resultsWPDP.get(target).containsKey(source)){
+					ArrayList<Prediction> prediction = new ArrayList<Prediction>();
+					prediction.add(new Prediction(source,target,fold,repeat,wAUC));
+					resultsWPDP.get(target).put(source,prediction);
+				}
+				resultsWPDP.get(target).get(source).add(new Prediction(source,target,fold,repeat,wAUC));
+			}
+			
+			//if(++lineCount%1000==0)
+			//	System.out.println("Processing HDP results(" + lineCount + "): " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
+		}
+		//System.out.println("End process HDP results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
+		
+		// get HashMap from CM results
+		//System.out.println("Start process CM results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
+		//lineCount = 0;
+		if(resultsCM.size()==0){
+			for(String line:linesCM){
 				String[] splitLine = line.split(",");
 				String source = splitLine[2].split("/")[1].replace(".arff", "").toLowerCase();
 				String target = splitLine[3].split("/")[1].replace(".arff", "").toLowerCase();
 				int repeat = Integer.parseInt(splitLine[0]);
 				int fold =  Integer.parseInt(splitLine[1]);
-				Double wAUC = Double.parseDouble(splitLine[8]);
 				Double AUC = Double.parseDouble(splitLine[12]);
 				
-				if(!resultsHDP.containsKey(target)){
+				//++lineCount;
+				
+				// only consider valid prediction from HDP results
+				if(!validHDPPrediction.contains((source+target+repeat+ "," + fold))) continue;
+				
+				if(!resultsCM.containsKey(target)){
 					HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
 					ArrayList<Prediction> predictions = new ArrayList<Prediction>();
 					predictions.add(new Prediction(source,target,fold,repeat,AUC));
 					resultsHDPBySource.put(source,predictions);
-					resultsHDP.put(target, resultsHDPBySource);
-					validHDPPrediction.add(source+target+repeat+ "," + fold);
+					resultsCM.put(target, resultsHDPBySource);
 				}else{
-					if(!resultsHDP.get(target).containsKey(source)){
+					if(!resultsCM.get(target).containsKey(source)){
 						ArrayList<Prediction> prediction = new ArrayList<Prediction>();
 						prediction.add(new Prediction(source,target,fold,repeat,AUC));
-						resultsHDP.get(target).put(source,prediction);
+						resultsCM.get(target).put(source,prediction);
 					}
-					resultsHDP.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
-					validHDPPrediction.add(source+target+repeat+ "," + fold);
+					resultsCM.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
 				}
 				
-				if(!resultsWPDP.containsKey(target)){
+				//if(lineCount%1000==0)
+				//	System.out.println("Processing CM results(" + lineCount + "): " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
+			}
+		}
+		//System.out.println("End process CM results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
+		
+		// get HashMap from IFS results
+		//System.err.println(linesIFS.size());
+		if(resultsIFS.size()==0){
+			int repeat=0;
+			int fold = 0;
+			for(String line:linesIFS){
+				String[] splitLine = line.split(",");
+				if(splitLine[0].trim().equals("A")) continue;
+			
+				String source = splitLine[1].split(">>")[0].toLowerCase();
+				String target = splitLine[1].split(">>")[1].toLowerCase();
+				Double AUC = Double.parseDouble(splitLine[9]);
+				
+				// only consider valid prediction from HDP results
+				if(!validHDPPrediction.contains((source+target+repeat+ "," + fold))) continue;
+				
+				if(!resultsIFS.containsKey(target)){
 					HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
 					ArrayList<Prediction> predictions = new ArrayList<Prediction>();
-					predictions.add(new Prediction(source,target,fold,repeat,wAUC));
+					predictions.add(new Prediction(source,target,fold,repeat,AUC));
 					resultsHDPBySource.put(source,predictions);
-					resultsWPDP.put(target, resultsHDPBySource);
+					resultsIFS.put(target, resultsHDPBySource);
 				}else{
-					if(!resultsWPDP.get(target).containsKey(source)){
+					if(!resultsIFS.get(target).containsKey(source)){
 						ArrayList<Prediction> prediction = new ArrayList<Prediction>();
-						prediction.add(new Prediction(source,target,fold,repeat,wAUC));
-						resultsWPDP.get(target).put(source,prediction);
+						prediction.add(new Prediction(source,target,fold,repeat,AUC));
+						resultsIFS.get(target).put(source,prediction);
 					}
-					resultsWPDP.get(target).get(source).add(new Prediction(source,target,fold,repeat,wAUC));
+					resultsIFS.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
 				}
 				
-				//if(++lineCount%1000==0)
-				//	System.out.println("Processing HDP results(" + lineCount + "): " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
-			}
-			//System.out.println("End process HDP results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
-			
-			// get HashMap from CM results
-			//System.out.println("Start process CM results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
-			//lineCount = 0;
-			if(resultsCM.size()==0){
-				for(String line:linesCM){
-					String[] splitLine = line.split(",");
-					String source = splitLine[2].split("/")[1].replace(".arff", "").toLowerCase();
-					String target = splitLine[3].split("/")[1].replace(".arff", "").toLowerCase();
-					int repeat = Integer.parseInt(splitLine[0]);
-					int fold =  Integer.parseInt(splitLine[1]);
-					Double AUC = Double.parseDouble(splitLine[12]);
-					
-					//++lineCount;
-					
-					// only consider valid prediction from HDP results
-					if(!validHDPPrediction.contains((source+target+repeat+ "," + fold))) continue;
-					
-					if(!resultsCM.containsKey(target)){
-						HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
-						ArrayList<Prediction> predictions = new ArrayList<Prediction>();
-						predictions.add(new Prediction(source,target,fold,repeat,AUC));
-						resultsHDPBySource.put(source,predictions);
-						resultsCM.put(target, resultsHDPBySource);
-					}else{
-						if(!resultsCM.get(target).containsKey(source)){
-							ArrayList<Prediction> prediction = new ArrayList<Prediction>();
-							prediction.add(new Prediction(source,target,fold,repeat,AUC));
-							resultsCM.get(target).put(source,prediction);
-						}
-						resultsCM.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
-					}
-					
-					//if(lineCount%1000==0)
-					//	System.out.println("Processing CM results(" + lineCount + "): " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
+				if(fold<1)
+					fold++;
+				else{
+					fold = 0;
+					repeat++;
+					if(repeat==500)
+						repeat=0;
 				}
 			}
-			//System.out.println("End process CM results: " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
-			
-			// get HashMap from IFS results
-			//System.err.println(linesIFS.size());
-			if(resultsIFS.size()==0){
-				int repeat=0;
-				int fold = 0;
-				for(String line:linesIFS){
-					String[] splitLine = line.split(",");
-					if(splitLine[0].trim().equals("A")) continue;
-				
-					String source = splitLine[1].split(">>")[0].toLowerCase();
-					String target = splitLine[1].split(">>")[1].toLowerCase();
-					Double AUC = Double.parseDouble(splitLine[9]);
-					
-					// only consider valid prediction from HDP results
-					if(!validHDPPrediction.contains((source+target+repeat+ "," + fold))) continue;
-					
-					if(!resultsIFS.containsKey(target)){
-						HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
-						ArrayList<Prediction> predictions = new ArrayList<Prediction>();
-						predictions.add(new Prediction(source,target,fold,repeat,AUC));
-						resultsHDPBySource.put(source,predictions);
-						resultsIFS.put(target, resultsHDPBySource);
-					}else{
-						if(!resultsIFS.get(target).containsKey(source)){
-							ArrayList<Prediction> prediction = new ArrayList<Prediction>();
-							prediction.add(new Prediction(source,target,fold,repeat,AUC));
-							resultsIFS.get(target).put(source,prediction);
-						}
-						resultsIFS.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
-					}
-					
-					if(fold<1)
-						fold++;
-					else{
-						fold = 0;
-						repeat++;
-						if(repeat==500)
-							repeat=0;
-					}
-				}
-			}
-			
+		}
+		
+		/*
+		 *  treatment <-c(1,2,3)
+		 *  control <-c(1,2,3)
+		 *  cliff.delta(treatment,control)
+		 */
+		try {
 			/*
-			 *  treatment <-c(1,2,3)
-			 *  control <-c(1,2,3)
-			 *  cliff.delta(treatment,control)
+			 * Run Rserve in R terminal to make RConnection
+			 * > library(Rserve)
+			 * > Rserve()
 			 */
-			try {
-				/*
-				 * Run Rserve in R terminal to make RConnection
-				 * > library(Rserve)
-				 * > Rserve()
-				 */
-				RConnection c= new RConnection();
-				c.eval("library('effsize')");
-				HashMap<Integer,String> resultLines = new HashMap<Integer,String>();
-				HashMap<Integer,String> resultLinesWinTieLoss = new HashMap<Integer,String>();
-				int[] totalWPDPWTL = {0,0,0};
-				int[] totalCMWTL = {0,0,0};
-				int[] totalIFSWTL = {0,0,0};
-				for(String key: resultsHDP.keySet()){
-					String target = key;
-					HashMap<String,ArrayList<Prediction>> predicitonsHDPBySource = resultsHDP.get(key);
-					HashMap<String,ArrayList<Prediction>> predicitonsWPDPBySource = resultsWPDP.get(key);
-					HashMap<String,ArrayList<Prediction>> predicitonsCMBySource = resultsCM.get(key);
-					HashMap<String,ArrayList<Prediction>> predicitonsIFSBySource = resultsIFS.get(key);
+			RConnection c= new RConnection();
+			c.eval("library('effsize')");
+			HashMap<Integer,String> resultLines = new HashMap<Integer,String>();
+			HashMap<Integer,String> resultLinesWinTieLoss = new HashMap<Integer,String>();
+			int[] totalWPDPWTL = {0,0,0};
+			int[] totalCMWTL = {0,0,0};
+			int[] totalIFSWTL = {0,0,0};
+
+			for(String key: orderedProjectName){
+				
+				// skip if there are no prediction combinations for a target
+				if(resultsHDP.get(key)==null){
+					resultLines.put(orderedProjectName.indexOf(key), key + "\t&" +
+							"-\t&" + 
+							"-\t&" +  
+							"-\t& - \\\\ \\hline");
 					
-					
-					// compute effsize: compare all values between treatment and control by a corresponding source
-					
-					// treatment
-					ArrayList<Double> treatment = new ArrayList<Double>();
-					ArrayList<Double> mediansHDP = new ArrayList<Double>();
-					ArrayList<String> validSources = new ArrayList<String>();
-					for(String srcKey:predicitonsHDPBySource.keySet()){
-						validSources.add(srcKey);
-						ArrayList<Prediction> predicitonsHDP = predicitonsHDPBySource.get(srcKey);
-						
-						ArrayList<Double> aucValues = new ArrayList<Double>();
-						for(int i=0; i<predicitonsHDP.size();i++){
-							treatment.add(predicitonsHDP.get(i).AUC);
-							aucValues.add(predicitonsHDP.get(i).AUC);
-						}
-						mediansHDP.add(getMedian(aucValues));
-					}
-					
-					// WPDP
-					ArrayList<Double> wpdp = new ArrayList<Double>();
-					ArrayList<Double> mediansWPDP = new ArrayList<Double>();
-					for(String srcKey:validSources){
-						ArrayList<Prediction> predicitonsWPDP = predicitonsWPDPBySource.get(srcKey);
-						ArrayList<Double> aucValues = new ArrayList<Double>();
-						for(int i=0; i<predicitonsWPDP.size();i++){
-							wpdp.add(predicitonsWPDP.get(i).AUC);
-							aucValues.add(predicitonsWPDP.get(i).AUC);
-						}
-						mediansWPDP.add(getMedian(aucValues));
-					}
-					
-					c.assign("treatment", Doubles.toArray(treatment));
-					c.assign("control", Doubles.toArray(wpdp));
-					RList lWPDP = c.eval("cliff.delta(treatment,control)").asList();
-					
-					// CM
-					ArrayList<Double> cm = new ArrayList<Double>();
-					ArrayList<Double> mediansCM = new ArrayList<Double>();
-					for(String srcKey:validSources){
-						ArrayList<Prediction> predicitonsCM = predicitonsCMBySource.get(srcKey);
-						ArrayList<Double> aucValues = new ArrayList<Double>();
-						for(int i=0; i<predicitonsCM.size();i++){
-							cm.add(predicitonsCM.get(i).AUC);
-							aucValues.add(predicitonsCM.get(i).AUC);
-						}
-						mediansCM.add(getMedian(aucValues));
-					}
-					
-					c.assign("control", Doubles.toArray(cm));
-					RList lCM = c.eval("cliff.delta(treatment,control)").asList();
-					
-					// IFS
-					ArrayList<Double> ifs = new ArrayList<Double>();
-					ArrayList<Double> mediansIFS = new ArrayList<Double>();
-					for(String srcKey:validSources){
-						ArrayList<Prediction> predicitonsIFS = predicitonsIFSBySource.get(srcKey);
-						ArrayList<Double> aucValues = new ArrayList<Double>();
-						for(int i=0; i<predicitonsIFS.size();i++){
-							ifs.add(predicitonsIFS.get(i).AUC);
-							aucValues.add(predicitonsIFS.get(i).AUC);
-						}
-						mediansIFS.add(getMedian(aucValues));
-					}
-					c.assign("control", Doubles.toArray(ifs));
-					RList lIFS = c.eval("cliff.delta(treatment,control)").asList();
-					
-					
-					// get result lines
-					Double wAUC = getMedian(mediansWPDP);
-					Double wAUCCliffDelta = lWPDP.at("estimate").asDouble();
-					Double cmAUC = getMedian(mediansCM);
-					Double cmAUCCliffDelta = lCM.at("estimate").asDouble();
-					Double ifsAUC = getMedian(mediansIFS);
-					Double ifsAUCCliffDelta = lIFS.at("estimate").asDouble();
-					Double hdpAUC = getMedian(mediansHDP);
-					
-					String wAUCMagnitute = getCliffsDeltaMagnitute(wAUCCliffDelta);
-					String cmAUCMagnitute = getCliffsDeltaMagnitute(cmAUCCliffDelta);
-					String ifsAUCMagnitute = getCliffsDeltaMagnitute(ifsAUCCliffDelta);
-					
-					String strHDPAUC = dec.format(hdpAUC);
-					
-					if(isSignificantByWilcoxonTest(mediansWPDP,mediansHDP))
-						strHDPAUC = "{\\bf " + strHDPAUC + "}";
-					
-					if(isSignificantByWilcoxonTest(mediansCM,mediansHDP))
-						strHDPAUC = "{\\underline" + strHDPAUC + "}";
-					
-					if(isSignificantByWilcoxonTest(mediansIFS,mediansHDP))
-						strHDPAUC = strHDPAUC + "*";
-					
-					resultLines.put(orderedProjectName.indexOf(key), target + "\t&" +
-							dec.format(wAUC) + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
-							dec.format(cmAUC) + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
-							dec.format(ifsAUC) + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
-							strHDPAUC + " \\\\ \\hline");
-					
-					//get results liens for Win/Tie/Loss evaluation
-					int[] wpdpWTL = {0,0,0}; // W/T/L against WPDP;
-					int[] cmWTL = {0,0,0}; // W/T/L against CM;
-					int[] ifsWTL = {0,0,0}; // W/T/L against IFS;
-					for(String source:predicitonsHDPBySource.keySet()){
-						ArrayList<Prediction> hdpPredicitons = predicitonsHDPBySource.get(source);
-						ArrayList<Prediction> wdpPredictions = predicitonsWPDPBySource.get(source);
-						ArrayList<Prediction> cmPredictions = predicitonsCMBySource.get(source);
-						ArrayList<Prediction> ifsPredictins = predicitonsIFSBySource.get(source);
-						
-						ArrayList<Double> hdpAUCs = new ArrayList<Double>();
-						ArrayList<Double> wpdpAUCs = new ArrayList<Double>();
-						ArrayList<Double> cmAUCs = new ArrayList<Double>();
-						ArrayList<Double> ifsAUCs = new ArrayList<Double>();
-						for(int i=0; i<1000;i++){
-							hdpAUCs.add(hdpPredicitons.get(i).AUC);
-							wpdpAUCs.add(wdpPredictions.get(i).AUC);
-							cmAUCs.add(cmPredictions.get(i).AUC);
-							ifsAUCs.add(ifsPredictins.get(i).AUC);
-						}
-						
-						wpdpWTL = updateWTL(wpdpWTL,wpdpAUCs,hdpAUCs);
-						cmWTL = updateWTL(cmWTL,cmAUCs,hdpAUCs);
-						ifsWTL = updateWTL(ifsWTL,ifsAUCs,hdpAUCs);
-					}
-					
-					totalWPDPWTL[0] += wpdpWTL[0];
-					totalWPDPWTL[1] += wpdpWTL[1];
-					totalWPDPWTL[2] += wpdpWTL[2];
-					
-					totalCMWTL[0] += cmWTL[0];
-					totalCMWTL[1] += cmWTL[1];
-					totalCMWTL[2] += cmWTL[2];
-					
-					totalIFSWTL[0] += ifsWTL[0];
-					totalIFSWTL[1] += ifsWTL[1];
-					totalIFSWTL[2] += ifsWTL[2];
-					
-					String strWTL = target + "\t&" + wpdpWTL[0] +"\t&" + wpdpWTL[1] +" \t&" + wpdpWTL[2] +
-								"\t&" + cmWTL[0] +"\t&" + cmWTL[1] +" \t&" + cmWTL[2] +
-								"\t&" + ifsWTL[0] +"\t&" + ifsWTL[1] +" \t&" + ifsWTL[2] + "\\\\ \\hline";
-					
+					String strWTL = key + "\t&-\t&-\t&-\t&-\t&-\t&-\t&-\t&-\t&-\\\\ \\hline";
+				
 					resultLinesWinTieLoss.put(orderedProjectName.indexOf(key), strWTL);
+					
+					continue;
 				}
 				
-				// total WTL
-				resultLinesWinTieLoss.put(orderedProjectName.size(), "Total\t&" + totalWPDPWTL[0] +"\t&" + totalWPDPWTL[1] +" \t&" + totalWPDPWTL[2] +
-						"\t&" + totalCMWTL[0] +"\t&" + totalCMWTL[1] +" \t&" + totalCMWTL[2] +
-						"\t&" + totalIFSWTL[0] +"\t&" + totalIFSWTL[1] +" \t&" + totalIFSWTL[2] + "\\\\ \\hline");
+				String target = key;
+				HashMap<String,ArrayList<Prediction>> predicitonsHDPBySource = resultsHDP.get(key);
+				HashMap<String,ArrayList<Prediction>> predicitonsWPDPBySource = resultsWPDP.get(key);
+				HashMap<String,ArrayList<Prediction>> predicitonsCMBySource = resultsCM.get(key);
+				HashMap<String,ArrayList<Prediction>> predicitonsIFSBySource = resultsIFS.get(key);
 				
 				
-				for(int i=0;i<resultLines.size();i++){
-					System.out.println(resultLines.get(i));
+				// compute effsize: compare all values between treatment and control by a corresponding source
+				
+				// treatment
+				ArrayList<Double> treatment = new ArrayList<Double>();
+				ArrayList<Double> mediansHDP = new ArrayList<Double>();
+				ArrayList<String> validSources = new ArrayList<String>();
+				for(String srcKey:predicitonsHDPBySource.keySet()){
+					validSources.add(srcKey);
+					ArrayList<Prediction> predicitonsHDP = predicitonsHDPBySource.get(srcKey);
+					
+					ArrayList<Double> aucValues = new ArrayList<Double>();
+					for(int i=0; i<predicitonsHDP.size();i++){
+						treatment.add(predicitonsHDP.get(i).AUC);
+						aucValues.add(predicitonsHDP.get(i).AUC);
+					}
+					mediansHDP.add(getMedian(aucValues));
 				}
 				
-				String wpdpMedian = dec.format(getMedian(resultsWPDP));
-				String cmMedian = dec.format(getMedian(resultsCM));
-				String ifsMedian = dec.format(getMedian(resultsIFS));
-				String hdpMedian = dec.format(getMedian(resultsHDP));
-				
-				if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
-					hdpMedian = "{\\bf " + hdpMedian + "}";
-				
-				if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
-					hdpMedian = "{\\underline" + hdpMedian + "}";
-				
-				if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
-					hdpMedian = hdpMedian + "*";
-				
-				
-				System.out.println("\\hline\n{\\bf {\\em All}}\t&" + 
-						wpdpMedian + "\t" + 
-						"\t&" +
-						cmMedian + "\t" +
-						"\t&" +
-						ifsMedian + "\t" +
-						"\t&" +
-						hdpMedian);
-				
-				
-				for(int i=0;i<resultLinesWinTieLoss.size();i++){
-					System.out.println(resultLinesWinTieLoss.get(i));
+				// WPDP
+				ArrayList<Double> wpdp = new ArrayList<Double>();
+				ArrayList<Double> mediansWPDP = new ArrayList<Double>();
+				for(String srcKey:validSources){
+					ArrayList<Prediction> predicitonsWPDP = predicitonsWPDPBySource.get(srcKey);
+					ArrayList<Double> aucValues = new ArrayList<Double>();
+					for(int i=0; i<predicitonsWPDP.size();i++){
+						wpdp.add(predicitonsWPDP.get(i).AUC);
+						aucValues.add(predicitonsWPDP.get(i).AUC);
+					}
+					mediansWPDP.add(getMedian(aucValues));
 				}
 				
-			} catch (REngineException | REXPMismatchException e) {
-				e.printStackTrace();
+				c.assign("treatment", Doubles.toArray(treatment));
+				c.assign("control", Doubles.toArray(wpdp));
+				RList lWPDP = c.eval("cliff.delta(treatment,control)").asList();
+				
+				// CM
+				ArrayList<Double> cm = new ArrayList<Double>();
+				ArrayList<Double> mediansCM = new ArrayList<Double>();
+				for(String srcKey:validSources){
+					ArrayList<Prediction> predicitonsCM = predicitonsCMBySource.get(srcKey);
+					ArrayList<Double> aucValues = new ArrayList<Double>();
+					for(int i=0; i<predicitonsCM.size();i++){
+						cm.add(predicitonsCM.get(i).AUC);
+						aucValues.add(predicitonsCM.get(i).AUC);
+					}
+					mediansCM.add(getMedian(aucValues));
+				}
+				
+				c.assign("control", Doubles.toArray(cm));
+				RList lCM = c.eval("cliff.delta(treatment,control)").asList();
+				
+				// IFS
+				ArrayList<Double> ifs = new ArrayList<Double>();
+				ArrayList<Double> mediansIFS = new ArrayList<Double>();
+				for(String srcKey:validSources){
+					ArrayList<Prediction> predicitonsIFS = predicitonsIFSBySource.get(srcKey);
+					ArrayList<Double> aucValues = new ArrayList<Double>();
+					for(int i=0; i<predicitonsIFS.size();i++){
+						ifs.add(predicitonsIFS.get(i).AUC);
+						aucValues.add(predicitonsIFS.get(i).AUC);
+					}
+					mediansIFS.add(getMedian(aucValues));
+				}
+				c.assign("control", Doubles.toArray(ifs));
+				RList lIFS = c.eval("cliff.delta(treatment,control)").asList();
+				
+				
+				// get result lines
+				Double wAUC = getMedian(mediansWPDP);
+				Double wAUCCliffDelta = lWPDP.at("estimate").asDouble();
+				Double cmAUC = getMedian(mediansCM);
+				Double cmAUCCliffDelta = lCM.at("estimate").asDouble();
+				Double ifsAUC = getMedian(mediansIFS);
+				Double ifsAUCCliffDelta = lIFS.at("estimate").asDouble();
+				Double hdpAUC = getMedian(mediansHDP);
+				
+				String wAUCMagnitute = getCliffsDeltaMagnitute(wAUCCliffDelta);
+				String cmAUCMagnitute = getCliffsDeltaMagnitute(cmAUCCliffDelta);
+				String ifsAUCMagnitute = getCliffsDeltaMagnitute(ifsAUCCliffDelta);
+				
+				String strHDPAUC = dec.format(hdpAUC);
+				
+				if(isSignificantByWilcoxonTest(mediansWPDP,mediansHDP))
+					strHDPAUC = "{\\bf " + strHDPAUC + "}";
+				
+				if(isSignificantByWilcoxonTest(mediansCM,mediansHDP))
+					strHDPAUC = "{\\underline" + strHDPAUC + "}";
+				
+				if(isSignificantByWilcoxonTest(mediansIFS,mediansHDP))
+					strHDPAUC = strHDPAUC + "*";
+				
+				resultLines.put(orderedProjectName.indexOf(key), target + "\t&" +
+						dec.format(wAUC) + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
+						dec.format(cmAUC) + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
+						dec.format(ifsAUC) + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
+						strHDPAUC + " \\\\ \\hline");
+				
+				//get results liens for Win/Tie/Loss evaluation
+				int[] wpdpWTL = {0,0,0}; // W/T/L against WPDP;
+				int[] cmWTL = {0,0,0}; // W/T/L against CM;
+				int[] ifsWTL = {0,0,0}; // W/T/L against IFS;
+				for(String source:predicitonsHDPBySource.keySet()){
+					ArrayList<Prediction> hdpPredicitons = predicitonsHDPBySource.get(source);
+					ArrayList<Prediction> wdpPredictions = predicitonsWPDPBySource.get(source);
+					ArrayList<Prediction> cmPredictions = predicitonsCMBySource.get(source);
+					ArrayList<Prediction> ifsPredictins = predicitonsIFSBySource.get(source);
+					
+					ArrayList<Double> hdpAUCs = new ArrayList<Double>();
+					ArrayList<Double> wpdpAUCs = new ArrayList<Double>();
+					ArrayList<Double> cmAUCs = new ArrayList<Double>();
+					ArrayList<Double> ifsAUCs = new ArrayList<Double>();
+					for(int i=0; i<1000;i++){
+						hdpAUCs.add(hdpPredicitons.get(i).AUC);
+						wpdpAUCs.add(wdpPredictions.get(i).AUC);
+						cmAUCs.add(cmPredictions.get(i).AUC);
+						ifsAUCs.add(ifsPredictins.get(i).AUC);
+					}
+					
+					wpdpWTL = updateWTL(wpdpWTL,wpdpAUCs,hdpAUCs);
+					cmWTL = updateWTL(cmWTL,cmAUCs,hdpAUCs);
+					ifsWTL = updateWTL(ifsWTL,ifsAUCs,hdpAUCs);
+				}
+				
+				totalWPDPWTL[0] += wpdpWTL[0];
+				totalWPDPWTL[1] += wpdpWTL[1];
+				totalWPDPWTL[2] += wpdpWTL[2];
+				
+				totalCMWTL[0] += cmWTL[0];
+				totalCMWTL[1] += cmWTL[1];
+				totalCMWTL[2] += cmWTL[2];
+				
+				totalIFSWTL[0] += ifsWTL[0];
+				totalIFSWTL[1] += ifsWTL[1];
+				totalIFSWTL[2] += ifsWTL[2];
+				
+				String strWTL = target + "\t&" + wpdpWTL[0] +"\t&" + wpdpWTL[1] +" \t&" + wpdpWTL[2] +
+							"\t&" + cmWTL[0] +"\t&" + cmWTL[1] +" \t&" + cmWTL[2] +
+							"\t&" + ifsWTL[0] +"\t&" + ifsWTL[1] +" \t&" + ifsWTL[2] + "\\\\ \\hline";
+				
+				resultLinesWinTieLoss.put(orderedProjectName.indexOf(key), strWTL);
 			}
+			
+			// total WTL
+			resultLinesWinTieLoss.put(orderedProjectName.size(), "Total\t&" + totalWPDPWTL[0] +"\t&" + totalWPDPWTL[1] +" \t&" + totalWPDPWTL[2] +
+					"\t&" + totalCMWTL[0] +"\t&" + totalCMWTL[1] +" \t&" + totalCMWTL[2] +
+					"\t&" + totalIFSWTL[0] +"\t&" + totalIFSWTL[1] +" \t&" + totalIFSWTL[2] + "\\\\ \\hline");
+			
+			
+			for(int i=0;i<resultLines.size();i++){
+				System.out.println(resultLines.get(i));
+			}
+			
+			String wpdpMedian = dec.format(getMedian(resultsWPDP));
+			String cmMedian = dec.format(getMedian(resultsCM));
+			String ifsMedian = dec.format(getMedian(resultsIFS));
+			String hdpMedian = dec.format(getMedian(resultsHDP));
+			
+			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+				hdpMedian = "{\\bf " + hdpMedian + "}";
+			
+			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+				hdpMedian = "\\underline{" + hdpMedian + "}";
+			
+			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+				hdpMedian = hdpMedian + "*";
+			
+			
+			System.out.println("\\hline\n{\\bf {\\em All}}\t&" + 
+					wpdpMedian + "\t" + 
+					"\t&" +
+					cmMedian + "\t" +
+					"\t&" +
+					ifsMedian + "\t" +
+					"\t&" +
+					hdpMedian);
+			
+			
+			for(int i=0;i<resultLinesWinTieLoss.size();i++){
+				System.out.println(resultLinesWinTieLoss.get(i));
+			}
+			
+		} catch (REngineException | REXPMismatchException e) {
+			e.printStackTrace();
 		}
 	}
 
