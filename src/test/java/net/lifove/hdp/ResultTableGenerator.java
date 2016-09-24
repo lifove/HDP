@@ -66,7 +66,7 @@ public class ResultTableGenerator {
 		orderedProjectName.add("ar6");
 		
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents//HDP/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
 		
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
@@ -81,6 +81,8 @@ public class ResultTableGenerator {
 			
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
 					0.90);
+		
+		
 		//}
 	}
 
@@ -90,7 +92,7 @@ public class ResultTableGenerator {
 			DecimalFormat dec, double cutoff) {
 		System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff));
 															
-		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + decForCutoff.format(cutoff) + "_Significance.txt",false);
+		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + decForCutoff.format(cutoff) + "_Significance_RServe.txt",false);
 
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder

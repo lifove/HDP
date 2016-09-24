@@ -28,6 +28,7 @@ public class Runner {
 	boolean help = false;
 	boolean suppress = false;
 	int numThreads = 4;
+	String mlAlgorithm = "weka.classifiers.functions.Logistic";
 
 	String resultString = "";
 
@@ -60,10 +61,11 @@ public class Runner {
 	public String doHDP(boolean printOutResult, Instances origSource, Instances origTarget,
 			String srclabelName, String srcPosLabelValue,
 			String tarlabelName, String tarPosLabelValue, ArrayList<String> matchedMetrics, double cutoff, boolean suppress,
-			FeatureSelectors fSelector,String srcPath,String tarPath) {
+			FeatureSelectors fSelector,String srcPath,String tarPath,String mlAlg) {
 		String resultString = "";
 		sourcePath = srcPath;
 		targetPath = tarPath;
+		mlAlgorithm = mlAlg.equals("")?mlAlgorithm:mlAlg;
 		if(origSource!=null && origTarget!=null){
 			origSource = new MetricSelector(origSource,fSelector).getNewInstances();
 
@@ -85,10 +87,9 @@ public class Runner {
 			Instances source = Utils.getNewInstancesByMatchedMetrics(origSource, matchedMetrics, true, srclabelName, srcPosLabelValue);
 			Instances target = Utils.getNewInstancesByMatchedMetrics(origTarget, matchedMetrics, false, tarlabelName, tarPosLabelValue);
 
-			//String mlAlgorithm = "weka.classifiers.functions.Logistic";
 			int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(Utils.strPos);
 			try {
-				Classifier classifier = (Classifier) new Logistic();//weka.core.Utils.forName(Classifier.class, mlAlgorithm, null);
+				Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, mlAlgorithm, null); //new Logistic();//
 				classifier.buildClassifier(source);
 
 				if(target.attributeStats(target.classIndex()).nominalCounts[1]!=0){			
