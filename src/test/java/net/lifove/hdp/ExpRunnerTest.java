@@ -68,7 +68,7 @@ public class ExpRunnerTest {
 		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/CDDP/CDDP/data/cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
 		FeatureSelectors fSelector = FeatureSelectors.Significance;
-		DecimalFormat dec = new DecimalFormat("0.01");
+		DecimalFormat dec = new DecimalFormat("0.00");
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.00);
