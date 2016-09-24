@@ -93,6 +93,18 @@ public class CoFeatureGenerator implements Runnable{
 		String[] NASA = {"cm1","mw1","pc1","pc3","pc4"};
 		ProjectGroupInfo projectGroupNASA = new ProjectGroupInfo("data/NASA/", "Defective", "Y", NASA);
 		
+		String[] NASA2 = {"jm1"};
+		ProjectGroupInfo projectGroupNASA2 = new ProjectGroupInfo("data/NASA/", "Defective", "Y", NASA2);
+		
+		String[] NASA3 = {"pc2"};
+		ProjectGroupInfo projectGroupNASA3 = new ProjectGroupInfo("data/NASA/", "Defective", "Y", NASA3);
+		
+		String[] NASA4 = {"pc5","mc1"};
+		ProjectGroupInfo projectGroupNASA4 = new ProjectGroupInfo("data/NASA/", "Defective", "Y", NASA4);
+		
+		String[] NASA5 = {"mc2","kc3"};
+		ProjectGroupInfo projectGroupNASA5 = new ProjectGroupInfo("data/NASA/", "Defective", "Y", NASA5);
+		
 		String[] SOFTLAB = {"ar1","ar3","ar4","ar5","ar6"};
 		ProjectGroupInfo projectGroupSOFTLAB = new ProjectGroupInfo("data/SOFTLAB/", "defects", "true", SOFTLAB);
 		
@@ -171,6 +183,10 @@ public class CoFeatureGenerator implements Runnable{
 			//threadRunner(projectGroupAEEEM, projectGroupMIM, analyzers[i], false,2);
 			threadRunner(projectGroupAEEEM, projectGroupPROMISE, analyzers[i], false,3);
 			threadRunner(projectGroupAEEEM, projectGroupNASA, analyzers[i], false,4);
+			threadRunner(projectGroupAEEEM, projectGroupNASA2, analyzers[i], false,41);
+			threadRunner(projectGroupAEEEM, projectGroupNASA3, analyzers[i], false,42);
+			threadRunner(projectGroupAEEEM, projectGroupNASA4, analyzers[i], false,43);
+			threadRunner(projectGroupAEEEM, projectGroupNASA5, analyzers[i], false,44);
 			threadRunner(projectGroupAEEEM, projectGroupSOFTLAB, analyzers[i], false,5);
 			//threadRunner(projectGroupAEEEM, projectGroupNetGene, analyzers[i], false,31);
 			
@@ -178,6 +194,10 @@ public class CoFeatureGenerator implements Runnable{
 			//threadRunner(projectGroupRelink, projectGroupMIM, analyzers[i], false,7);
 			threadRunner(projectGroupRelink, projectGroupPROMISE, analyzers[i], false,8);
 			threadRunner(projectGroupRelink, projectGroupNASA, analyzers[i], false,9);
+			threadRunner(projectGroupRelink, projectGroupNASA2, analyzers[i], false,91);
+			threadRunner(projectGroupRelink, projectGroupNASA3, analyzers[i], false,92);
+			threadRunner(projectGroupRelink, projectGroupNASA4, analyzers[i], false,93);
+			threadRunner(projectGroupRelink, projectGroupNASA5, analyzers[i], false,94);
 			threadRunner(projectGroupRelink, projectGroupSOFTLAB, analyzers[i], false,10);
 			//threadRunner(projectGroupRelink, projectGroupNetGene, analyzers[i], false,32);
 			
@@ -191,6 +211,10 @@ public class CoFeatureGenerator implements Runnable{
 			threadRunner(projectGroupPROMISE, projectGroupRelink, analyzers[i], false,17);
 			//threadRunner(projectGroupPROMISE, projectGroupMIM, analyzers[i], false,18);
 			threadRunner(projectGroupPROMISE, projectGroupNASA, analyzers[i], false,19);
+			threadRunner(projectGroupPROMISE, projectGroupNASA2, analyzers[i], false,191);
+			threadRunner(projectGroupPROMISE, projectGroupNASA3, analyzers[i], false,192);
+			threadRunner(projectGroupPROMISE, projectGroupNASA4, analyzers[i], false,193);
+			threadRunner(projectGroupPROMISE, projectGroupNASA5, analyzers[i], false,194);
 			threadRunner(projectGroupPROMISE, projectGroupSOFTLAB, analyzers[i], false,20);
 			//threadRunner(projectGroupPROMISE, projectGroupNetGene, analyzers[i], false,33);
 			
@@ -199,6 +223,10 @@ public class CoFeatureGenerator implements Runnable{
 			//threadRunner(projectGroupNASA, projectGroupMIM, analyzers[i], false,23);
 			threadRunner(projectGroupNASA, projectGroupPROMISE, analyzers[i], false,24);
 			threadRunner(projectGroupNASA, projectGroupSOFTLAB, analyzers[i], false,25);
+			threadRunner(projectGroupNASA, projectGroupNASA2, analyzers[i], false,25);
+			threadRunner(projectGroupNASA, projectGroupNASA3, analyzers[i], false,25);
+			threadRunner(projectGroupNASA, projectGroupNASA4, analyzers[i], false,25);
+			threadRunner(projectGroupNASA, projectGroupNASA5, analyzers[i], false,25);
 			//threadRunner(projectGroupNASA, projectGroupNetGene, analyzers[i], false,34);
 			
 			threadRunner(projectGroupSOFTLAB, projectGroupAEEEM, analyzers[i], false,26);
@@ -206,7 +234,47 @@ public class CoFeatureGenerator implements Runnable{
 			//threadRunner(projectGroupSOFTLAB, projectGroupMIM, analyzers[i], false,28);
 			threadRunner(projectGroupSOFTLAB, projectGroupPROMISE, analyzers[i], false,29);
 			threadRunner(projectGroupSOFTLAB, projectGroupNASA, analyzers[i], false,30);
+			threadRunner(projectGroupSOFTLAB, projectGroupNASA2, analyzers[i], false,30);
+			threadRunner(projectGroupSOFTLAB, projectGroupNASA3, analyzers[i], false,30);
+			threadRunner(projectGroupSOFTLAB, projectGroupNASA4, analyzers[i], false,30);
+			threadRunner(projectGroupSOFTLAB, projectGroupNASA5, analyzers[i], false,30);
 			//threadRunner(projectGroupSOFTLAB, projectGroupNetGene, analyzers[i], false,35);
+			
+			threadRunner(projectGroupNASA2, projectGroupAEEEM, analyzers[i], false,21);
+			threadRunner(projectGroupNASA2, projectGroupRelink, analyzers[i], false,22);
+			threadRunner(projectGroupNASA2, projectGroupNASA, analyzers[i], false,24);
+			threadRunner(projectGroupNASA2, projectGroupNASA3, analyzers[i], false,24);
+			threadRunner(projectGroupNASA2, projectGroupNASA4, analyzers[i], false,24);
+			threadRunner(projectGroupNASA2, projectGroupNASA5, analyzers[i], false,24);
+			threadRunner(projectGroupNASA2, projectGroupPROMISE, analyzers[i], false,24);
+			threadRunner(projectGroupNASA2, projectGroupSOFTLAB, analyzers[i], false,25);
+			
+			threadRunner(projectGroupNASA3, projectGroupAEEEM, analyzers[i], false,21);
+			threadRunner(projectGroupNASA3, projectGroupRelink, analyzers[i], false,22);
+			threadRunner(projectGroupNASA3, projectGroupNASA, analyzers[i], false,24);
+			threadRunner(projectGroupNASA3, projectGroupNASA2, analyzers[i], false,24);
+			threadRunner(projectGroupNASA3, projectGroupNASA4, analyzers[i], false,24);
+			threadRunner(projectGroupNASA3, projectGroupNASA5, analyzers[i], false,24);
+			threadRunner(projectGroupNASA3, projectGroupPROMISE, analyzers[i], false,24);
+			threadRunner(projectGroupNASA3, projectGroupSOFTLAB, analyzers[i], false,25);
+			
+			threadRunner(projectGroupNASA4, projectGroupAEEEM, analyzers[i], false,21);
+			threadRunner(projectGroupNASA4, projectGroupRelink, analyzers[i], false,22);
+			threadRunner(projectGroupNASA4, projectGroupNASA, analyzers[i], false,24);
+			threadRunner(projectGroupNASA4, projectGroupNASA2, analyzers[i], false,24);
+			threadRunner(projectGroupNASA4, projectGroupNASA3, analyzers[i], false,24);
+			threadRunner(projectGroupNASA4, projectGroupNASA5, analyzers[i], false,24);
+			threadRunner(projectGroupNASA4, projectGroupPROMISE, analyzers[i], false,24);
+			threadRunner(projectGroupNASA4, projectGroupSOFTLAB, analyzers[i], false,25);
+			
+			threadRunner(projectGroupNASA5, projectGroupAEEEM, analyzers[i], false,21);
+			threadRunner(projectGroupNASA5, projectGroupRelink, analyzers[i], false,22);
+			threadRunner(projectGroupNASA5, projectGroupNASA, analyzers[i], false,24);
+			threadRunner(projectGroupNASA5, projectGroupNASA2, analyzers[i], false,24);
+			threadRunner(projectGroupNASA5, projectGroupNASA3, analyzers[i], false,24);
+			threadRunner(projectGroupNASA5, projectGroupNASA4, analyzers[i], false,24);
+			threadRunner(projectGroupNASA5, projectGroupPROMISE, analyzers[i], false,24);
+			threadRunner(projectGroupNASA5, projectGroupSOFTLAB, analyzers[i], false,25);
 			
 			/*threadRunner(projectGroupNetGene, projectGroupAEEEM, analyzers[i], false,36);
 			threadRunner(projectGroupNetGene, projectGroupRelink, analyzers[i], false,37);
@@ -524,20 +592,20 @@ public class CoFeatureGenerator implements Runnable{
 			// run analyzer
 			CoOccurrenceAnalyzer coOccurAnalyzer=null;
 			RConnection rServe;
-			try {
-				rServe = new RConnection();
+			//try {
+				rServe = null; //new RConnection();
 			
 				coOccurAnalyzer = new CoOccurrenceAnalyzer(coOccurrenceAnalyzerOption,sourceInstances,targetInstances,
 						sourceLabelName,sourceLabelPos,targetLabelName,targetLabelPos,true,cutoff,false,false,useLBMFilter,useDMFilter,rServe);
 				
 				coOccurAnalyzer.runAnalyzer();
 				
-				rServe.close();
-			} catch (RserveException e) {
+				//rServe.close();
+			/*} catch (RserveException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.exit(0);
-			}
+			}*/
 			//for(MatchedAttribute matched:coOccurAnalyzer.matchedAttribute){
 			//for(MatchedAttribute matched:coOccurAnalyzer.allMatchedAttributes){
 			

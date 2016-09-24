@@ -1143,9 +1143,9 @@ ArrayList<ArrayList<Double>> getQuartiles(Instances instances){
 				 
 				 //double pValue = TestUtils.tTest(sourceAttrValues, targetAttrValues);
 				
-				double pValue= getKSPvalueFromR(sourceAttrValues, targetAttrValues);
+				//double pValue= getKSPvalueFromR(sourceAttrValues, targetAttrValues);
 
-				//double pValue = new KolmogorovSmirnovTest().kolmogorovSmirnovTest(sourceAttrValues, targetAttrValues);
+				double pValue = new KolmogorovSmirnovTest().kolmogorovSmirnovTest(sourceAttrValues, targetAttrValues);
 				pValues.add(new MatchedAttribute(s,t,pValue));
 			}
 		}
