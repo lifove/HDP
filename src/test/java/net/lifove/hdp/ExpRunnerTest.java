@@ -29,6 +29,9 @@ public class ExpRunnerTest {
 		Runner runner = new Runner();
 		
 		String [] projects = {
+				//"MIM/MIMEtc.arff",
+				//"MIM/MIMMylyn.arff",
+				//"MIM/MIMTeam.arff",
 				"ReLink/Safe.arff",
 				"ReLink/Apache.arff",
 				"ReLink/Zxing.arff",
@@ -62,13 +65,13 @@ public class ExpRunnerTest {
 				"AEEEM/EQ.arff",
 				"AEEEM/LC.arff",
 				"AEEEM/JDT.arff",
-				"AEEEM/ML.arff"
+				"AEEEM/ML.arff",
 		};
 		
 		//String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 		//String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/CDDP/CDDP/data/cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
 		String pathToDataset = System.getProperty("user.home") + "/Documents/UW/HDP+/data/";
-		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/UW/HDP+/data/cofeatures_20160922_All_Matched_for_fs_none_PAnalyzer,SCoAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
+		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/UW/HDP+/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
 		
 		FeatureSelectors fSelector = FeatureSelectors.Significance;
 		DecimalFormat dec = new DecimalFormat("0.00");
@@ -85,13 +88,16 @@ public class ExpRunnerTest {
 		
 		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05);
 		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.50);
-		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.LMT");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.ChiSquare, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.GainRatio, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.RelieF, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.None, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
+		/*conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.LMT");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.J48");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.RandomForest");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.bayes.BayesNet");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SMO");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SMO");*/
 		
 		//}
 	}
@@ -313,6 +319,11 @@ public class ExpRunnerTest {
 		
 		if(group.equals("CK")){
 			labelInfo[0] = "bug"; // bug or class
+			labelInfo[1] = "buggy";
+		}
+		
+		if(group.equals("MIM")){
+			labelInfo[0] = "class"; // bug or class
 			labelInfo[1] = "buggy";
 		}
 		
