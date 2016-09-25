@@ -21,6 +21,8 @@ import org.rosuda.REngine.Rserve.RConnection;
 
 import com.google.common.primitives.Doubles;
 
+import net.lifove.hdp.util.Utils.FeatureSelectors;
+
 
 public class ResultTableGenerator {
 	
@@ -71,32 +73,36 @@ public class ResultTableGenerator {
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
 		
-		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsCM = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
-		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsIFS = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
-		
 		DecimalFormat decForCutoff = new DecimalFormat("0.00");
 		DecimalFormat dec = new DecimalFormat("0.000");
 		
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
-		generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
-					0.90);
-		
+		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
+		//			0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare);
+		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
+		//		0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.RelieF);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.None);
 		
 		//}
 	}
 
 	private void generate(ArrayList<String> orderedProjectName, String pathToResults, ArrayList<String> linesIFS,
-			ArrayList<String> linesCM, HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsCM,
-			HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsIFS, DecimalFormat decForCutoff,
-			DecimalFormat dec, double cutoff) {
-		System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff));
+			ArrayList<String> linesCM,
+			DecimalFormat decForCutoff,
+			DecimalFormat dec, double cutoff,String analyzer, String mlAlg,FeatureSelectors fSelector) {
+		System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff) + "_" + fSelector.name() + "_" + analyzer + "_" + mlAlg);
 															
-		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + decForCutoff.format(cutoff) + "_Significance_RServe.txt",false);
+		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + decForCutoff.format(cutoff) + "_" + fSelector.name() + "_" + analyzer + "_" + mlAlg + ".txt",false);
 
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsWPDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
+		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsCM = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
+		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsIFS = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		
 		/*int millis = 1000;
 		long startTime = System.currentTimeMillis();
@@ -359,7 +365,7 @@ public class ResultTableGenerator {
 					strHDPAUC = "{\\bf " + strHDPAUC + "}";
 				
 				if(isSignificantByWilcoxonTest(mediansCM,mediansHDP))
-					strHDPAUC = "{\\underline" + strHDPAUC + "}";
+					strHDPAUC = "\\underline{" + strHDPAUC + "}}";
 				
 				if(isSignificantByWilcoxonTest(mediansIFS,mediansHDP))
 					strHDPAUC = strHDPAUC + "*";
