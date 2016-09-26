@@ -83,14 +83,19 @@ public class ResultTableGenerator {
 		//			0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare);
 		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
 		//		0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio);
-		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+		/*generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.trees.J48",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio);*/
+		
+		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+		//		0.05,"KSAnalyzer","weka.classifiers.functions.SMO",FeatureSelectors.GainRatio);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.90,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		
 		//}
 	}
@@ -370,7 +375,7 @@ public class ResultTableGenerator {
 					strHDPAUC = "{\\bf " + strHDPAUC + "}";
 				
 				if(isSignificantByWilcoxonTest(mediansCM,mediansHDP))
-					strHDPAUC = "\\underline{" + strHDPAUC + "}}";
+					strHDPAUC = "\\underline{" + strHDPAUC + "}";
 				
 				if(isSignificantByWilcoxonTest(mediansIFS,mediansHDP))
 					strHDPAUC = strHDPAUC + "*";

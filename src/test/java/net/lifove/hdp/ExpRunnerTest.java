@@ -68,10 +68,10 @@ public class ExpRunnerTest {
 				"AEEEM/ML.arff",
 		};
 		
-		//String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
-		//String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/CDDP/CDDP/data/cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
-		String pathToDataset = System.getProperty("user.home") + "/Documents/UW/HDP+/data/";
-		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/UW/HDP+/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
+		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
+		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/HDP/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer,PAnalyzer,SCoAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
+		//String pathToDataset = System.getProperty("user.home") + "/Documents/UW/HDP+/data/";
+		//String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/UW/HDP+/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
 		
 		FeatureSelectors fSelector = FeatureSelectors.GainRatio;
 		DecimalFormat dec = new DecimalFormat("0.00");
@@ -87,7 +87,7 @@ public class ExpRunnerTest {
 		// weka.classifiers.bayes.BayesNet,weka.classifiers.functions.SimpleLogistic"
 		
 		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05);
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.GainRatio, dec, 0.90,"KSAnalyzer", "weka.classifiers.functions.Logistic");
+		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.GainRatio, dec, 0.90,"KSAnalyzer", "weka.classifiers.functions.Logistic");
 		
 		/*conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.ChiSquare, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.GainRatio, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
@@ -96,24 +96,36 @@ public class ExpRunnerTest {
 		
 		
 		// various MLs
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.LMT");
+		/*conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.LMT");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.J48");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.RandomForest");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.bayes.BayesNet");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SMO");
-		
+		*/
 		// various Analyzers
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"PAnalyzer", "weka.classifiers.functions.Logistic");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"SCoAnalyzer", "weka.classifiers.functions.Logistic");
+		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
+		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"PAnalyzer", "weka.classifiers.functions.Logistic");
+		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"SCoAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"SCoAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"PAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"PAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		
+		
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.ChiSquare, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.Significance, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.RelieF, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.None, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		
 		//}
 	}
 
 	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,
 			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg) {
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/UW/HDP+/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + ".txt");
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + ".txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
