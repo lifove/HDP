@@ -429,17 +429,17 @@ public class ResultTableGenerator {
 			// total WTL
 			
 			int numPredictionCombinations = totalWPDPWTL[0] +  totalWPDPWTL[1] + totalWPDPWTL[2];
-			double winAgainstWPDP = (double)totalWPDPWTL[0]/numPredictionCombinations;
-			double tieAgainstWPDP = (double)totalWPDPWTL[1]/numPredictionCombinations;
-			double lossAgainstWPDP = (double)totalWPDPWTL[2]/numPredictionCombinations;
+			double winAgainstWPDP = ((double)totalWPDPWTL[0]/numPredictionCombinations)*100;
+			double tieAgainstWPDP = ((double)totalWPDPWTL[1]/numPredictionCombinations)*100;
+			double lossAgainstWPDP = ((double)totalWPDPWTL[2]/numPredictionCombinations)*100;
 			
-			double winAgainstCM = (double)totalCMWTL[0]/numPredictionCombinations;
-			double tieAgainstCM = (double)totalCMWTL[1]/numPredictionCombinations;
-			double lossAgaisnCM = (double)totalCMWTL[2]/numPredictionCombinations;
+			double winAgainstCM = ((double)totalCMWTL[0]/numPredictionCombinations)*100;
+			double tieAgainstCM = ((double)totalCMWTL[1]/numPredictionCombinations)*100;
+			double lossAgaisnCM = ((double)totalCMWTL[2]/numPredictionCombinations)*100;
 			
-			double winAgainstIFS = (double)totalIFSWTL[0]/numPredictionCombinations;
-			double tieAgainstIFS = (double)totalIFSWTL[1]/numPredictionCombinations;
-			double lossAgainstIFS = (double)totalIFSWTL[2]/numPredictionCombinations;
+			double winAgainstIFS = ((double)totalIFSWTL[0]/numPredictionCombinations)*100;
+			double tieAgainstIFS = ((double)totalIFSWTL[1]/numPredictionCombinations)*100;
+			double lossAgainstIFS = ((double)totalIFSWTL[2]/numPredictionCombinations)*100;
 			
 			
 			resultLinesWinTieLoss.put(orderedProjectName.size(),
@@ -463,15 +463,24 @@ public class ResultTableGenerator {
 			String ifsMedian = dec.format(getMedian(resultsIFS));
 			String hdpMedian = dec.format(getMedian(resultsHDP));
 			
-			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+			int wTestWPDPHDP = isSignificantByWilcoxonTest(resultsWPDP,resultsHDP);
+			if(wTestWPDPHDP==1)
 				hdpMedian = "{\\bf " + hdpMedian + "}";
+			else if(wTestWPDPHDP==-1){
+				wpdpMedian = "{\\bf " + wpdpMedian + "}";
+			}
 			
-			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+			int wTestCMHDP = isSignificantByWilcoxonTest(resultsCM,resultsHDP);
+			if(wTestCMHDP==1)
 				hdpMedian = "\\underline{" + hdpMedian + "}";
+			else if(wTestCMHDP==-1)
+				cmMedian = "\\underline{" + cmMedian + "}";
 			
-			if(isSignificantByWilcoxonTest(resultsWPDP,resultsHDP))
+			int wTestIFSHDP = isSignificantByWilcoxonTest(resultsIFS,resultsHDP);
+			if(wTestIFSHDP==1)
 				hdpMedian = hdpMedian + "*";
-			
+			else if(wTestIFSHDP==-1)
+				ifsMedian = ifsMedian + "*";
 			
 			System.out.println("\\hline\n{\\bf {\\em All}}\t&" + 
 					wpdpMedian + "\t" + 
@@ -536,7 +545,7 @@ public class ResultTableGenerator {
 		return false;
 	}
 
-	private boolean isSignificantByWilcoxonTest(HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsA,
+	private int isSignificantByWilcoxonTest(HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsA,
 			HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsB) {
 		
 		ArrayList<Double> mediansA = getMedians(resultsA);
@@ -551,9 +560,12 @@ public class ResultTableGenerator {
 		Double medeanB = getMedian(mediansB);
 		
 		if(medeanA < medeanB && p < 0.05)
-			return true;
+			return 1;
 		
-		return false;
+		if(medeanA > medeanB && p < 0.05)
+			return -1;
+		
+		return 0;
 	}
 
 	private String getCliffsDeltaMagnitute(Double wAUCCliffDelta) {
