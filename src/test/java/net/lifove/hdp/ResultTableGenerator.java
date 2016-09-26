@@ -27,6 +27,7 @@ import net.lifove.hdp.util.Utils.FeatureSelectors;
 public class ResultTableGenerator {
 	
 	DecimalFormat dec = new DecimalFormat("0.000");
+	DecimalFormat decPercent = new DecimalFormat("0.0");
 	
 	@Test
 	public void testMain() {
@@ -68,7 +69,7 @@ public class ResultTableGenerator {
 		orderedProjectName.add("ar6");
 		
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
 		
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
@@ -83,9 +84,13 @@ public class ResultTableGenerator {
 		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
 		//		0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.RelieF);
+				0.05,"KSAnalyzer","weka.classifiers.trees.J48",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.None);
+				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio);
 		
 		//}
 	}
@@ -422,9 +427,31 @@ public class ResultTableGenerator {
 			}
 			
 			// total WTL
-			resultLinesWinTieLoss.put(orderedProjectName.size(), "Total\t&" + totalWPDPWTL[0] +"\t&" + totalWPDPWTL[1] +" \t&" + totalWPDPWTL[2] +
-					"\t&" + totalCMWTL[0] +"\t&" + totalCMWTL[1] +" \t&" + totalCMWTL[2] +
-					"\t&" + totalIFSWTL[0] +"\t&" + totalIFSWTL[1] +" \t&" + totalIFSWTL[2] + "\\\\ \\hline");
+			
+			int numPredictionCombinations = totalWPDPWTL[0] +  totalWPDPWTL[1] + totalWPDPWTL[2];
+			double winAgainstWPDP = (double)totalWPDPWTL[0]/numPredictionCombinations;
+			double tieAgainstWPDP = (double)totalWPDPWTL[1]/numPredictionCombinations;
+			double lossAgainstWPDP = (double)totalWPDPWTL[2]/numPredictionCombinations;
+			
+			double winAgainstCM = (double)totalCMWTL[0]/numPredictionCombinations;
+			double tieAgainstCM = (double)totalCMWTL[1]/numPredictionCombinations;
+			double lossAgaisnCM = (double)totalCMWTL[2]/numPredictionCombinations;
+			
+			double winAgainstIFS = (double)totalIFSWTL[0]/numPredictionCombinations;
+			double tieAgainstIFS = (double)totalIFSWTL[1]/numPredictionCombinations;
+			double lossAgainstIFS = (double)totalIFSWTL[2]/numPredictionCombinations;
+			
+			
+			resultLinesWinTieLoss.put(orderedProjectName.size(),
+					"Total\t&\\specialcell{{" + totalWPDPWTL[0] +"}\\\\{" + decPercent.format(winAgainstWPDP) + "\\%}}\t&" + 
+						    "\\specialcell{{" +	totalWPDPWTL[1] +"}\\\\{" + decPercent.format(tieAgainstWPDP) + "\\%}}\t&" + 
+						    "\\specialcell{{" +	totalWPDPWTL[2] +"}\\\\{" + decPercent.format(lossAgainstWPDP) + "\\%}}\t&" +
+						    "\\specialcell{{" +	totalCMWTL[0] +"}\\\\{" + decPercent.format(winAgainstCM) + "\\%}}\t&" + 
+						    "\\specialcell{{" +	totalCMWTL[1] +"}\\\\{" + decPercent.format(tieAgainstCM) + "\\%}}\t&" + 
+						    "\\specialcell{{" +	totalCMWTL[2] +"}\\\\{" + decPercent.format(lossAgaisnCM) + "\\%}}\t&" + 
+						    "\\specialcell{{" +	totalIFSWTL[0] +"}\\\\{" + decPercent.format(winAgainstIFS) + "\\%}}\t&" + 
+						    "\\specialcell{{" +	totalIFSWTL[1] +"}\\\\{" + decPercent.format(tieAgainstIFS) + "\\%}}\t&" + 
+						    "\\specialcell{{" +	totalIFSWTL[2] +"}\\\\{" + decPercent.format(lossAgainstIFS) + "\\%}}\\\\ \\hline");
 			
 			
 			for(int i=0;i<resultLines.size();i++){
