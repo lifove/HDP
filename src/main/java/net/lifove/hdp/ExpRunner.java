@@ -74,7 +74,7 @@ public class ExpRunner {
 		FeatureSelectors fSelector = null;
 		if(strFSelector.equals("GainRatio"))
 			fSelector = FeatureSelectors.GainRatio;
-		else if(strFSelector.equals("ChiSqure"))
+		else if(strFSelector.equals("ChiSquare"))
 			fSelector = FeatureSelectors.ChiSquare;
 		else if(strFSelector.equals("RelieF"))
 			fSelector = FeatureSelectors.RelieF;
