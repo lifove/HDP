@@ -70,6 +70,9 @@ public class ExpRunner {
 		String analyzer = args[5];
 		String ml = args[6]; //"weka.classifiers.functions.SimpleLogistic"
 		
+		HashMap<String,HashMap<String,Double>> matchingScoresByAttributeIndices = loadExsitingMatchingScores(pathToSavedMatchingScores,analyzer);
+		
+		
 		Runner runner = new Runner();
 		FeatureSelectors fSelector = null;
 		if(strFSelector.equals("GainRatio"))
@@ -84,11 +87,11 @@ public class ExpRunner {
 			fSelector = FeatureSelectors.None;
 		
 		DecimalFormat dec = new DecimalFormat("0.00");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, pathToSaveResults, fSelector, dec, cutoff,analyzer, ml);
+		conductExp(runner, projects, pathToDataset, matchingScoresByAttributeIndices, pathToSaveResults, fSelector, dec, cutoff,analyzer, ml);
 		
 	}
 	
-	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,String pathToSaveResults,
+	private void conductExp(Runner runner, String[] projects, String pathToDataset, HashMap<String,HashMap<String,Double>> matchingScoresByAttributeIndices,String pathToSaveResults,
 			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg) {
 		Path path = Paths.get(pathToSaveResults + "/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + "_main.txt");
 		
@@ -97,7 +100,6 @@ public class ExpRunner {
 		HashMap<String,String> withinResults = new HashMap<String,String>();
 		
 		// key srcName-tarName value = HashMap<String,Double> (key=srcAttrIdx + "-" + tarAttrIdx, score)
-		HashMap<String,HashMap<String,Double>> matchingScoresByAttributeIndices = loadExsitingMatchingScores(pathToSavedMatchingScores,analyzer);
 		
 		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
 			
