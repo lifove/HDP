@@ -29,10 +29,12 @@ public class ResultTableGenerator {
 	DecimalFormat dec = new DecimalFormat("0.000");
 	DecimalFormat decPercent = new DecimalFormat("0.0");
 	
+	ArrayList<String> orderedProjectName = new ArrayList<String>();
+	HashMap<String,String> sourceGroups = new HashMap<String,String>();
+	
 	@Test
 	public void testMain() {
 		
-		ArrayList<String> orderedProjectName = new ArrayList<String>();
 		orderedProjectName.add("EQ".toLowerCase());
 		orderedProjectName.add("JDT".toLowerCase());
 		orderedProjectName.add("LC".toLowerCase());
@@ -68,8 +70,42 @@ public class ResultTableGenerator {
 		orderedProjectName.add("ar5");
 		orderedProjectName.add("ar6");
 		
+		sourceGroups.put("EQ".toLowerCase(),"AEEEM");
+		sourceGroups.put("JDT".toLowerCase(),"AEEEM");
+		sourceGroups.put("LC".toLowerCase(),"AEEEM");
+		sourceGroups.put("ML".toLowerCase(),"AEEEM");
+		sourceGroups.put("PDE".toLowerCase(),"AEEEM");
+		sourceGroups.put("Apache".toLowerCase(),"Relink");
+		sourceGroups.put("Safe".toLowerCase(),"Relink");
+		sourceGroups.put("Zxing".toLowerCase(),"Relink");
+		sourceGroups.put("ant-1.3","MORPH");
+		sourceGroups.put("arc","MORPH");
+		sourceGroups.put("camel-1.0","MORPH");
+		sourceGroups.put("poi-1.5","MORPH");
+		sourceGroups.put("redaktor","MORPH");
+		sourceGroups.put("skarbonka","MORPH");
+		sourceGroups.put("tomcat","MORPH");
+		sourceGroups.put("velocity-1.4","MORPH");
+		sourceGroups.put("xalan-2.4","MORPH");
+		sourceGroups.put("xerces-1.2","MORPH");
+		sourceGroups.put("CM1".toLowerCase(),"NASA");
+		sourceGroups.put("MW1".toLowerCase(),"NASA");
+		sourceGroups.put("PC1".toLowerCase(),"NASA");
+		sourceGroups.put("PC3".toLowerCase(),"NASA");
+		sourceGroups.put("PC4".toLowerCase(),"NASA");
+		sourceGroups.put("JM1".toLowerCase(),"NASA");
+		sourceGroups.put("PC2".toLowerCase(),"NASA");
+		sourceGroups.put("PC5".toLowerCase(),"NASA");
+		sourceGroups.put("MC1".toLowerCase(),"NASA");
+		sourceGroups.put("MC2".toLowerCase(),"NASA");
+		sourceGroups.put("KC3".toLowerCase(),"NASA");
+		sourceGroups.put("ar1","SOFTLAB");
+		sourceGroups.put("ar3","SOFTLAB");
+		sourceGroups.put("ar4","SOFTLAB");
+		sourceGroups.put("ar5","SOFTLAB");
+		sourceGroups.put("ar6","SOFTLAB");
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
 		
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
@@ -114,6 +150,7 @@ public class ResultTableGenerator {
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsCM = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsIFS = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		
+		HashMap<String,ArrayList<String>> medianResultsForEachCombination = new HashMap<String,ArrayList<String>>(); // key sourceGroupName, value: medians and WTL results for combinations in the same source group
 		/*int millis = 1000;
 		long startTime = System.currentTimeMillis();
 		System.out.println("Start process HDP results: " + (int)startTime/millis + "s");*/
@@ -419,6 +456,28 @@ public class ResultTableGenerator {
 						ifsAUCs.add(ifsPredictins.get(i).AUC);
 					}
 					
+					Double medianWPDP = getMedian(wpdpAUCs);
+					Double medianCM = getMedian(cmAUCs);
+					Double medianIFS = getMedian(ifsAUCs);
+					Double medianHDP = getMedian(hdpAUCs);
+					
+					String wtlAgainstWPDP = evaluateWTL(wpdpAUCs,hdpAUCs);
+					String wtlAgainstCM = evaluateWTL(cmAUCs,hdpAUCs);
+					String wtlAgainstIFS = evaluateWTL(ifsAUCs,hdpAUCs);
+					
+					String sourceGroup = sourceGroups.get(source);
+					String strReulstForThisCombination = source + "," + target + "," +
+							dec.format(medianWPDP) + "," + wtlAgainstWPDP + "," +
+							dec.format(medianCM) + "," + wtlAgainstCM + "," +
+							dec.format(medianIFS) + "," + wtlAgainstIFS + "," +
+							dec.format(medianHDP);
+					if(!medianResultsForEachCombination.containsKey(sourceGroup)){
+						ArrayList<String> resultForCombination = new ArrayList<String>();
+						resultForCombination.add(strReulstForThisCombination);
+						medianResultsForEachCombination.put(sourceGroup,resultForCombination);
+					}else{
+						medianResultsForEachCombination.get(sourceGroup).add(strReulstForThisCombination);
+					}
 					wpdpWTL = updateWTL(wpdpWTL,wpdpAUCs,hdpAUCs);
 					cmWTL = updateWTL(cmWTL,cmAUCs,hdpAUCs);
 					ifsWTL = updateWTL(ifsWTL,ifsAUCs,hdpAUCs);
@@ -516,6 +575,61 @@ public class ResultTableGenerator {
 		} catch (REngineException | REXPMismatchException e) {
 			e.printStackTrace();
 		}
+		
+		// results by source group
+		for(String sourceGroup:medianResultsForEachCombination.keySet()){
+			ArrayList<Double> wpdpAUCs = new ArrayList<Double>();
+			ArrayList<Double> cmAUCs = new ArrayList<Double>();
+			ArrayList<Double> ifsAUCs = new ArrayList<Double>();
+			ArrayList<Double> hdpAUCs = new ArrayList<Double>();
+			ArrayList<String> targets = new ArrayList<String>();
+			for(String result:medianResultsForEachCombination.get(sourceGroup)){
+				String[] splitString = result.split(",");
+				wpdpAUCs.add(Double.parseDouble(splitString[2]));
+				cmAUCs.add(Double.parseDouble(splitString[4]));
+				ifsAUCs.add(Double.parseDouble(splitString[6]));
+				hdpAUCs.add(Double.parseDouble(splitString[8]));
+				if(!targets.contains(splitString[1]))
+					targets.add(splitString[1]);
+			}
+
+			int targetCoverage = targets.size();
+			
+			Double wpdpMedian = getMedian(wpdpAUCs);
+			Double cmMedian = getMedian(cmAUCs);
+			Double ifsMedian = getMedian(ifsAUCs);
+			Double hdpMedian = getMedian(hdpAUCs);
+			
+			String strHDPAUC = dec.format(hdpMedian);
+			String strWPDPAUC = dec.format(wpdpMedian);
+			String strCMAUC = dec.format(cmMedian);
+			String strIFSAUC = dec.format(ifsMedian);
+			
+			int wTestWPDPHDP = isSignificantByWilcoxonTest(wpdpAUCs,hdpAUCs);
+			if(wTestWPDPHDP==1)
+				strHDPAUC = "{\\bf " + strHDPAUC + "}";
+			else if(wTestWPDPHDP==-1)
+				strWPDPAUC = "{\\bf " + strWPDPAUC + "}";
+			
+			int wTestCMHDP = isSignificantByWilcoxonTest(cmAUCs,hdpAUCs);
+			if(wTestCMHDP==1)
+				strHDPAUC = "\\underline{" + strHDPAUC + "}";
+			else if(wTestCMHDP==-1)
+				strCMAUC = "\\underline{" + strCMAUC + "}";
+			
+			int wTestIFSHDP = isSignificantByWilcoxonTest(ifsAUCs,hdpAUCs);
+			if(wTestIFSHDP==1)
+				strHDPAUC = strHDPAUC + "*";
+			else if(wTestIFSHDP==-1)
+				strIFSAUC = strIFSAUC + "*";
+
+			System.out.println(sourceGroup +"\t&" + strWPDPAUC + "\t&" + 
+													strCMAUC + "\t&" + 
+													strIFSAUC + "\t&" + 
+													strHDPAUC + "\t&" +
+													targetCoverage + " \\\\ \\hline\t\t" + targets.toString()
+					);
+		}
 	}
 
 	private int[] updateWTL(int[] wtlValues, ArrayList<Double> baselineAUCs, ArrayList<Double> hdpAUCs) {
@@ -543,6 +657,27 @@ public class ResultTableGenerator {
 		wtlValues[1]++;
 		
 		return wtlValues;
+	}
+	
+	private String evaluateWTL(ArrayList<Double> baselineAUCs, ArrayList<Double> hdpAUCs){
+		WilcoxonSignedRankTest statTest = new WilcoxonSignedRankTest();
+		double p = statTest.wilcoxonSignedRankTest(Doubles.toArray(baselineAUCs), Doubles.toArray(hdpAUCs),false);
+		
+		Double medeanA = getMedian(baselineAUCs);
+		Double medeanB = getMedian(hdpAUCs);
+		
+		// win
+		if(p<0.05 && medeanA < medeanB){
+			return "Win"; //Win
+		}
+		
+		// loss
+		if(p<0.05 && medeanA > medeanB){
+			return "Loss";
+		}
+		
+		// otherwise, tie
+		return "Tie";
 	}
 
 	private int isSignificantByWilcoxonTest(ArrayList<Double> mediansA,
