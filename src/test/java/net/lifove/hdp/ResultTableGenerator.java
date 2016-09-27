@@ -69,7 +69,7 @@ public class ResultTableGenerator {
 		orderedProjectName.add("ar6");
 		
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
 		
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
@@ -95,7 +95,7 @@ public class ResultTableGenerator {
 		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
 		//		0.05,"KSAnalyzer","weka.classifiers.functions.SMO",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.90,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		
 		//}
 	}
@@ -370,20 +370,32 @@ public class ResultTableGenerator {
 				String ifsAUCMagnitute = getCliffsDeltaMagnitute(ifsAUCCliffDelta);
 				
 				String strHDPAUC = dec.format(hdpAUC);
+				String strWPDPAUC = dec.format(wAUC);
+				String strCMAUC = dec.format(cmAUC);
+				String strIFSAUC = dec.format(ifsAUC);
 				
-				if(isSignificantByWilcoxonTest(mediansWPDP,mediansHDP))
+				int wTestWPDPHDP = isSignificantByWilcoxonTest(mediansWPDP,mediansHDP);
+				if(wTestWPDPHDP==1)
 					strHDPAUC = "{\\bf " + strHDPAUC + "}";
+				else if(wTestWPDPHDP==-1)
+					strWPDPAUC = "{\\bf " + strWPDPAUC + "}";
 				
-				if(isSignificantByWilcoxonTest(mediansCM,mediansHDP))
+				int wTestCMHDP = isSignificantByWilcoxonTest(mediansCM,mediansHDP);
+				if(wTestCMHDP==1)
 					strHDPAUC = "\\underline{" + strHDPAUC + "}";
+				else if(wTestCMHDP==-1)
+					strCMAUC = "\\underline{" + strCMAUC + "}";
 				
-				if(isSignificantByWilcoxonTest(mediansIFS,mediansHDP))
+				int wTestIFSHDP = isSignificantByWilcoxonTest(mediansIFS,mediansHDP);
+				if(wTestIFSHDP==1)
 					strHDPAUC = strHDPAUC + "*";
+				else if(wTestIFSHDP==-1)
+					strIFSAUC = strIFSAUC + "*";
 				
 				resultLines.put(orderedProjectName.indexOf(key), target + "\t&" +
-						dec.format(wAUC) + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
-						dec.format(cmAUC) + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
-						dec.format(ifsAUC) + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
+						strWPDPAUC + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
+						strCMAUC + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
+						strIFSAUC + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
 						strHDPAUC + " \\\\ \\hline");
 				
 				//get results liens for Win/Tie/Loss evaluation
@@ -533,7 +545,7 @@ public class ResultTableGenerator {
 		return wtlValues;
 	}
 
-	private boolean isSignificantByWilcoxonTest(ArrayList<Double> mediansA,
+	private int isSignificantByWilcoxonTest(ArrayList<Double> mediansA,
 			ArrayList<Double> mediansB) {
 
 		WilcoxonSignedRankTest statTest = new WilcoxonSignedRankTest();
@@ -544,10 +556,13 @@ public class ResultTableGenerator {
 		Double medeanB = getMedian(mediansB);
 		
 		if(medeanA < medeanB && p < 0.05)
-			return true;
+			return 1;
+		
+		if(medeanA > medeanB && p < 0.05)
+			return -1;
 		
 		
-		return false;
+		return 0;
 	}
 
 	private int isSignificantByWilcoxonTest(HashMap<String, HashMap<String, ArrayList<Prediction>>> resultsA,
