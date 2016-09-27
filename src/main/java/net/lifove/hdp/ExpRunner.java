@@ -64,10 +64,11 @@ public class ExpRunner {
 	public void run(String[] args){
 		String pathToDataset = args[0];
 		String pathToSavedMatchingScores = args[1];
-		String strFSelector = args[2];
-		Double cutoff = Double.parseDouble(args[3]);
-		String analyzer = args[4];
-		String ml = args[5]; //"weka.classifiers.functions.SimpleLogistic"
+		String pathToSaveResults = args[2];
+		String strFSelector = args[3];
+		Double cutoff = Double.parseDouble(args[4]);
+		String analyzer = args[5];
+		String ml = args[6]; //"weka.classifiers.functions.SimpleLogistic"
 		
 		Runner runner = new Runner();
 		FeatureSelectors fSelector = null;
@@ -83,13 +84,13 @@ public class ExpRunner {
 			fSelector = FeatureSelectors.None;
 		
 		DecimalFormat dec = new DecimalFormat("0.00");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, cutoff,analyzer, ml);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, pathToSaveResults, fSelector, dec, cutoff,analyzer, ml);
 		
 	}
 	
-	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,
+	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,String pathToSaveResults,
 			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg) {
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + "_main.txt");
+		Path path = Paths.get(pathToSaveResults + "/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + "_main.txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
