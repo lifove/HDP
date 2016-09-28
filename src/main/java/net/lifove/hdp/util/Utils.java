@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.attributeSelection.ChiSquaredAttributeEval;
@@ -305,6 +306,49 @@ public class Utils {
 			System.exit(0);
 		}
 		return null;
+	}
+	
+	/**
+	 * Generate new instances by random labeling
+	 * @param instances
+	 * @return new instances with randomly labeled
+	 */
+	public static Instances randomizeLabeling(Instances instances){
+
+		Instances randomlyLabeledData = new Instances(instances);
+
+		double[] lableValues = new double[instances.numInstances()];
+
+		
+		// get label values
+		for(int instIdx=0;instIdx<instances.numInstances();instIdx++){// ignore label attribute
+			lableValues[instIdx] = instances.instance(instIdx).classValue();
+		}
+
+		shuffleArray(lableValues);
+
+		for(int instIdx=0;instIdx<instances.numInstances();instIdx++){// ignore label attribute
+			randomlyLabeledData.instance(instIdx).setValue(instances.classAttribute(), lableValues[instIdx]);
+		}
+
+		return randomlyLabeledData;
+	}
+	
+	/**
+	 * Implementing Fisher-Yates shuffle
+	 * @param ar double array to be shuffled
+	 */
+	static void shuffleArray(double[] ar)
+	{
+		Random rnd = new Random();
+		for (int i = ar.length - 1; i >= 0; i--)
+		{
+			int index = rnd.nextInt(i + 1);
+			// Simple swap
+			double a = ar[index];
+			ar[index] = ar[i];
+			ar[i] = a;
+		}
 	}
 	
 	/**
