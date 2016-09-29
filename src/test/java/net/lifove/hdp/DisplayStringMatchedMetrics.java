@@ -22,7 +22,7 @@ import net.lifove.hdp.util.Utils;
 import net.lifove.hdp.util.Utils.FeatureSelectors;
 import weka.core.Instances;
 
-public class GenerateMatchedMatric {
+public class DisplayStringMatchedMetrics {
 
 	@Test
 	public void testMain() {
@@ -68,10 +68,10 @@ public class GenerateMatchedMatric {
 				"AEEEM/ML.arff",
 		};
 		
-		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
-		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/HDP/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer,PAnalyzer,SCoAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
-		//String pathToDataset = System.getProperty("user.home") + "/Documents/UW/HDP+/data/";
-		//String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/UW/HDP+/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
+		//String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
+		//String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/HDP/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer,PAnalyzer,SCoAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
+		String pathToDataset = System.getProperty("user.home") + "/Documents/UW/HDP+/data/";
+		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/UW/HDP+/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
 		
 		FeatureSelectors fSelector = FeatureSelectors.GainRatio;
 		DecimalFormat dec = new DecimalFormat("0.00");
@@ -107,14 +107,14 @@ public class GenerateMatchedMatric {
 		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"PAnalyzer", "weka.classifiers.functions.Logistic");
 		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"SCoAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		
 		//}
 	}
 
 	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,
 			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg) {
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + ".txt");
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/UW/HDP+/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + ".txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
@@ -167,8 +167,14 @@ public class GenerateMatchedMatric {
 						}
 						mapMatchedMetrics.put(keyForMatchedMetrics, strMatchedMetrics);
 					}
-					
-					System.out.println(strMatchedMetrics);
+				
+					if(strMatchedMetrics.size()!=0){
+						System.out.println("[" + sourceName + " : " + targetName + "]" );
+						for(String matchedMetric:strMatchedMetrics)
+							System.out.println(matchedMetric);
+						
+						System.out.println("");
+					}
 				}
 			}
 		} catch (IOException e) {
