@@ -115,23 +115,23 @@ public class ResultTableGenerator {
 		
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
-		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
-		//			0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare);
-		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, resultsCM, resultsIFS, decForCutoff, dec,
-		//		0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio);
-		/*generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.J48",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio);*/
-		
-		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-		//		0.05,"KSAnalyzer","weka.classifiers.functions.SMO",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.functions.SMO",FeatureSelectors.GainRatio);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.trees.J48",FeatureSelectors.GainRatio);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio);
+		
+		
+		
 		
 		//}
 	}
@@ -811,6 +811,7 @@ class Prediction{
 	int fold;
 	int repeat;
 	double AUC;
+	double wAUC;
 	
 	public Prediction(String srcName,String tarName,int fold,int repeat,double AUC){
 		this.sourceName = srcName;
@@ -818,5 +819,14 @@ class Prediction{
 		this.fold = fold;
 		this.repeat = repeat;
 		this.AUC = AUC;
+	}
+	
+	public Prediction(String srcName,String tarName,int fold,int repeat,double AUC, double wAUC){
+		this.sourceName = srcName;
+		this.targetName = tarName;
+		this.fold = fold;
+		this.repeat = repeat;
+		this.AUC = AUC;
+		this.wAUC = wAUC;
 	}
 }
