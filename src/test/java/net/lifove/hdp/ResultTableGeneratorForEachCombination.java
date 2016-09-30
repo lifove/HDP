@@ -107,7 +107,7 @@ public class ResultTableGeneratorForEachCombination {
 		sourceGroups.put("ar5","SOFTLAB");
 		sourceGroups.put("ar6","SOFTLAB");
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
 		
 		DecimalFormat decForCutoff = new DecimalFormat("0.00");
 		DecimalFormat dec = new DecimalFormat("0.000");
@@ -176,7 +176,7 @@ public class ResultTableGeneratorForEachCombination {
 			System.out.println("\t<td>" + dec.format(getMedian(wAUCs)) + "</td>");
 			System.out.println("\t<td>" + dec.format(hdpAUC) + "</td>");
 			System.out.println("\t<td>" + getWTL(wAUCs,AUCs) + "</td>");
-			System.out.println("\t<td>\n\t" + mapMatchedMetrics.get(key).replaceAll("\\|", "<br>\n\t") + "</td>");
+			System.out.println("\t<td>\n\t" + getMatchedMetricsForHTML(source,target,mapMatchedMetrics.get(key)) + "</td>");
 			System.out.println("</tr>");
 			
 			matchedMetricsForEachCpmbination.add(source + "," + target + "," + mapMatchedMetrics.get(key));
@@ -206,6 +206,24 @@ public class ResultTableGeneratorForEachCombination {
 			System.out.println(line);
 	}
 	
+	private String getMatchedMetricsForHTML(String srcName,String tarName,String mathecMetrics) {
+		String[] arrMathedMetrics = mathecMetrics.split("\\|");
+		
+		String lines="";
+		for(String matchedMetric:arrMathedMetrics){
+			String[] splitString = matchedMetric.split(">>");
+			String srcAttr = splitString[0];
+			String tarAttr = splitString[1].substring(0,  splitString[1].indexOf("("));
+			String imgName = srcName.toLowerCase() + "_" + tarName.toLowerCase() + "_" + srcAttr + "_" + tarAttr + ".png";
+			//<a href=bplots/ant-1.3_apache_rfc_AvgLine.png target=_NEW onmouseover="hoverDivs(event,'bplots/ant-1.3_apache_rfc_AvgLine.png')" onmouseleave="leaveDivs(event)">rfc:AvgLine</a>
+			lines = lines + "<a href=bplots/" + imgName  +
+							" onmouseover=\"hoverDivs(event,'bplots/" + imgName + "')\" onmouseleave=\"leaveDivs(event)\"" +
+							"target=_NEW>" +
+					srcAttr + ":" + tarAttr + "</a><br>\n\t";
+		}
+		return lines;
+	}
+
 	private String getFinalProjectName(String string) {
 		if (string.equals("eq"))
 			return "EQ";
