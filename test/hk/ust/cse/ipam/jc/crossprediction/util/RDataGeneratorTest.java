@@ -2,14 +2,25 @@ package hk.ust.cse.ipam.jc.crossprediction.util;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
+
+import net.lifove.research.utils.FileUtil;
 
 public class RDataGeneratorTest {
 
 	@Test
 	public void test() {
-		
+
 		String dataRoot = System.getProperty("user.home") + "/Documents/UW/HDP+/data/";
+		
+		ArrayList<String> lines = FileUtil.getLines(dataRoot + "matched_metrics_KS_0.05_GainRatio.txt", false);
+		
+		for(String line:lines){
+			
+			
+		}
 		
 		String[] srcDataInfo = {"mc1",dataRoot + "NASA","Defective","Y"};
 		String[] tarDataInfo = {"Safe",dataRoot + "Relink","isDefective","TRUE"};
