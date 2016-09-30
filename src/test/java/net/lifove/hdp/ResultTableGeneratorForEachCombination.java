@@ -107,7 +107,7 @@ public class ResultTableGeneratorForEachCombination {
 		sourceGroups.put("ar5","SOFTLAB");
 		sourceGroups.put("ar6","SOFTLAB");
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
+		String pathToResults = System.getProperty("user.home") + "/Documents/UW/HDP+/Results/";
 		
 		DecimalFormat decForCutoff = new DecimalFormat("0.00");
 		DecimalFormat dec = new DecimalFormat("0.000");
@@ -152,6 +152,7 @@ public class ResultTableGeneratorForEachCombination {
 		}
 		
 		HashMap<String,ArrayList<Double>> aucsBySource = new HashMap<String,ArrayList<Double>>();
+		ArrayList<String> matchedMetricsForEachCpmbination = new ArrayList<String>();
 		
 		SortedSet<String> keys = new TreeSet<String>(resultsHDPForEachPredictonCombination.keySet());
 		for (String key : keys) { 
@@ -177,6 +178,8 @@ public class ResultTableGeneratorForEachCombination {
 			System.out.println("\t<td>" + getWTL(wAUCs,AUCs) + "</td>");
 			System.out.println("\t<td>\n\t" + mapMatchedMetrics.get(key).replaceAll("\\|", "<br>\n\t") + "</td>");
 			System.out.println("</tr>");
+			
+			matchedMetricsForEachCpmbination.add(source + "," + target + "," + mapMatchedMetrics.get(key));
 		}
 
 		// print out
@@ -191,12 +194,16 @@ public class ResultTableGeneratorForEachCombination {
 					System.out.println(source + "\t&" + dec.format(getMedian(aucsBySource.get(source))) + "\t&" + aucsBySource.get(source).size() +"\t\\\\ \\hline");
 			else
 				if(i%2==0)
-					System.out.print(source + "\t&N/A\t&0" +"\t&");
+					System.out.print(source + "\t&n/a\t&0" +"\t&");
 				else
-					System.out.println(source + "\t&N/A\t&0" +"\t\\\\ \\hline");
+					System.out.println(source + "\t&n/a\t&0" +"\t\\\\ \\hline");
 			
 			i++;
 		}
+		
+		// print out 
+		for(String line:matchedMetricsForEachCpmbination)
+			System.out.println(line);
 	}
 	
 	private String getFinalProjectName(String string) {
