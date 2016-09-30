@@ -16,22 +16,62 @@ public class RScriptGenerator {
 	 */
 	public static void main(String[] args) {
 		
-		ArrayList<String> lines = FileUtil.getLines("data/cofeatures_ASWF_0.9.txt", false);
+		String srcProject = "mc1";//args[0];
+		String srcFeature = "HALSTEAD_VOLUME"; //args[1];
+		
+		String tarProject = "Safe";//args[2];
+		String tarFeature = "CountSemicolon";//args[3];
+		String crossAUC = "";
 		
 		System.out.println("library(beanplot)");
 		System.out.println("data <- read.table(\"featureRdata.txt\", header=T)");
 		
-		for(String line:lines){
+		/*for(String line:lines){
 			String[] splitLine = line.split("\t");
 			String srcProject = splitLine[0].split(">>")[0];
 			String tarProject = splitLine[0].split(">>")[1];
 			String cofeatures = splitLine[1];
-			String crossAUC = splitLine[2];
-			new RScriptGenerator().run(srcProject,tarProject, cofeatures, crossAUC);
-		}
+			String crossAUC = splitLine[2];*/
+			new RScriptGenerator().run(srcProject,tarProject, srcFeature, tarFeature);
+		//}
 	}
 
-	private void run(String srcProjectName,String tarProjectName, String cofeatures,String crossAUC) {
+	private void run(String srcProjectName,String tarProjectName, String srcFeature,String tarFeature) {
+		String src = srcProjectName;	
+		String tar = tarProjectName;
+	
+				
+		
+		System.out.println("pdf(file=\"RFigures/" + srcProjectName + "_" + tarProjectName + "_" + src + "_" +tar + "_beanplots.pdf\", w=10, h=10)");
+		System.out.println("par(mar=c(7.1,4,2,1))");
+		
+		
+			System.out.println("ordered = c(\"" + src + "_" + srcFeature + "_clean\",\"" +
+									tar + "_" + tarFeature + "_clean\",\"" +
+									src + "_" + srcFeature + "_buggy\",\"" +
+									tar + "_" + tarFeature + "_buggy\",\"" +
+									src + "_" + srcFeature + "\",\"" +
+									tar + "_" + tarFeature + "\")");
+			System.out.println("d <- data");
+			System.out.println("d$Type <- factor(d$Type, levels=ordered)");
+			
+			System.out.println("p <- beanplot(Value ~ Type, data=d, bw=\"bcv\", what=c(0,1,1,0)," +
+									"border=NA, side=\"both\", col=list(\"#DDDDDD\", \"#BBBBBB\"), show.names=F)");
+			
+			
+			System.out.println("labels= c(\"" + src + "_" + tar + "_" + srcFeature + "_" + tarFeature + "_clean\", \"" + src + "_" + tar + "_" + srcFeature + "_" + tarFeature + "_buggy\",\"" +
+									srcFeature + "_" + tarFeature + "_" + src + ">>" + tar +"\")");
+			
+			System.out.println("for(i in 1:length(labels)){");
+			System.out.println("	 text(0.9+(i-1), -10.0, labels=c(labels[i]), adj=1, srt=45, xpd=T)");
+			System.out.println("}\n");
+			
+			
+		
+		System.out.println("dev.off()");
+	}
+	
+	/*private void run(String srcProjectName,String tarProjectName, String cofeatures,String crossAUC) {
 		String src = srcProjectName;	
 		String tar = tarProjectName;
 	
@@ -78,5 +118,5 @@ public class RScriptGenerator {
 		}
 		
 		System.out.println("dev.off()");
-	}
+	}*/
 }
