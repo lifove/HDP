@@ -176,6 +176,7 @@ public class ResultTableGeneratorForEachCombination {
 			System.out.println("\t<td>" + dec.format(getMedian(wAUCs)) + "</td>");
 			System.out.println("\t<td>" + dec.format(hdpAUC) + "</td>");
 			System.out.println("\t<td>" + getWTL(wAUCs,AUCs) + "</td>");
+			System.out.println("\t<td>" + (mapMatchedMetrics.get(key).split("\\|").length) + "</td>");
 			System.out.println("\t<td>\n\t" + getMatchedMetricsForHTML(source,target,mapMatchedMetrics.get(key)) + "</td>");
 			System.out.println("</tr>");
 			

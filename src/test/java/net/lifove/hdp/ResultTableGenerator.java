@@ -116,22 +116,21 @@ public class ResultTableGenerator {
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.10,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio);
+				0.20,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio);
+				0.30,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.SMO",FeatureSelectors.GainRatio);
+				0.40,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.J48",FeatureSelectors.GainRatio);
+				0.50,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio);
+				0.60,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio);
-		
-		
-		
+				0.70,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+				0.80,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
 		
 		//}
 	}
@@ -142,7 +141,12 @@ public class ResultTableGenerator {
 			DecimalFormat dec, double cutoff,String analyzer, String mlAlg,FeatureSelectors fSelector) {
 		System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff) + "_" + fSelector.name() + "_" + analyzer + "_" + mlAlg);
 															
-		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + decForCutoff.format(cutoff) + "_" + fSelector.name() + "_" + analyzer + "_" + mlAlg + ".txt",false);
+		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + 
+				decForCutoff.format(cutoff) + "_" + 
+				fSelector.name() + "_" + 
+				analyzer + "_" + 
+				mlAlg + 
+				"_main.txt",false);
 
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder
