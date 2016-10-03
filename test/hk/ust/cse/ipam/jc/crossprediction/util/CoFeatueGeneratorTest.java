@@ -2,7 +2,6 @@ package hk.ust.cse.ipam.jc.crossprediction.util;
 
 import static org.junit.Assert.*;
 import hk.ust.cse.ipam.jc.crossprediction.CoFeatureGenerator;
-import hk.ust.cse.ipam.jc.crossprediction.CoFeatureGeneratorNoneThreads;
 
 import java.io.IOException;
 
