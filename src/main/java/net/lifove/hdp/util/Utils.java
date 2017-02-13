@@ -10,6 +10,7 @@ import java.util.Random;
 import net.lifove.hdp.MetricSelector;
 import net.lifove.hdp.util.Utils.FeatureSelectors;
 import weka.filters.supervised.attribute.AttributeSelection;
+import weka.filters.unsupervised.attribute.Remove;
 import weka.attributeSelection.ChiSquaredAttributeEval;
 import weka.attributeSelection.GainRatioAttributeEval;
 import weka.attributeSelection.Ranker;
@@ -32,9 +33,18 @@ public class Utils {
 		try {
 			Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, mlAlg, null);
 			
-			if(applyFeatureSelection)
+			if(applyFeatureSelection){
 				source = new MetricSelector(source,fSelector).getNewInstances();
-
+				String strListOfAttributes = "";
+				for(int attrIdx = 0; attrIdx < source.numAttributes();attrIdx++){
+					if(attrIdx == source.classIndex())
+						continue;
+					strListOfAttributes += source.attribute(attrIdx).name() + ",";
+				}
+				strListOfAttributes += source.classAttribute().name();
+				target = getInstancesByRemovingSpecificAttributesByStringNames(target, strListOfAttributes, true);
+			}
+			
 			classifier.buildClassifier(source);
 			
 			Evaluation eval = new Evaluation(source);
@@ -355,6 +365,50 @@ public class Utils {
 			ar[index] = ar[i];
 			ar[i] = a;
 		}
+	}
+	
+	/**
+	 * Get instances with specific attributes
+	 * @param instances
+	 * @param attributeIndices attribute string names.
+	 * @param invertSelection for invert selection
+	 * @return new instances with specific attributes
+	 */
+	static public Instances getInstancesByRemovingSpecificAttributesByStringNames(Instances instances,String attributeNames,boolean invertSelection){
+
+		String attributeIndices = "";
+		
+		for(String attributeName:attributeNames.split(",")){
+			attributeIndices += (instances.attribute(attributeName).index()+1) + ","; // attribute index starts from 1.
+		}
+
+		return getInstancesByRemovingSpecificAttributes(instances,attributeIndices,invertSelection);
+	}
+	
+	/**
+	 * Get instances with specific attributes
+	 * @param instances
+	 * @param attributeIndices attribute indices (e.g., 1,3,4) first index is 1
+	 * @param invertSelection for invert selection
+	 * @return new instances with specific attributes
+	 */
+	static public Instances getInstancesByRemovingSpecificAttributes(Instances instances,String attributeIndices,boolean invertSelection){
+		Instances newInstances = new Instances(instances);
+
+		Remove remove;
+
+		remove = new Remove();
+		remove.setAttributeIndices(attributeIndices);
+		remove.setInvertSelection(invertSelection);
+		try {
+			remove.setInputFormat(newInstances);
+			newInstances = Filter.useFilter(newInstances, remove);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+
+		return newInstances;
 	}
 	
 	/**
