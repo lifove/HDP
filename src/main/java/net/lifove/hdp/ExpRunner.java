@@ -69,6 +69,7 @@ public class ExpRunner {
 		Double cutoff = Double.parseDouble(args[4]);
 		String analyzer = args[5];
 		String ml = args[6]; //"weka.classifiers.functions.SimpleLogistic"
+		Boolean isWPDPWithFS = Boolean.parseBoolean(args[7]); // true of false;
 		
 		Runner runner = new Runner();
 		FeatureSelectors fSelector = null;
@@ -84,13 +85,15 @@ public class ExpRunner {
 			fSelector = FeatureSelectors.None;
 		
 		DecimalFormat dec = new DecimalFormat("0.00");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, pathToSaveResults, fSelector, dec, cutoff,analyzer, ml);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, pathToSaveResults, fSelector, dec, cutoff,analyzer, ml, isWPDPWithFS);
 		
 	}
 	
 	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,String pathToSaveResults,
-			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg) {
-		Path path = Paths.get(pathToSaveResults + "/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + "_main.txt");
+			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg, boolean isWPDPWithFS) {
+		
+		String strIsWPDPWithFS = isWPDPWithFS? "_WPDP_FS":"";
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/UW/HDP+/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + strIsWPDPWithFS + "_main.txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
@@ -162,7 +165,7 @@ public class ExpRunner {
 							else{
 								withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
 													targetInstances.testCV(folds, fold),
-													tarlabelInfo[1],mlAlg);
+													tarlabelInfo[1],mlAlg,isWPDPWithFS,fSelector);
 								withinResults.put(key,withinResult);		
 							}
 							

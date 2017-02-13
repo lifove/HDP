@@ -76,7 +76,8 @@ public class ExpRunnerTest {
 		FeatureSelectors fSelector = FeatureSelectors.GainRatio;
 		DecimalFormat dec = new DecimalFormat("0.00");
 		
-		String analyzer = "PAnalyzer";
+		String analyzer = "KSAnalyzer";
+		boolean isWPDPWithFeatureSelection = true;
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 		
 		//weka.classifiers.trees.LMT"
@@ -96,19 +97,19 @@ public class ExpRunnerTest {
 		
 		
 		// various MLs
-		/*conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.LMT");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.J48");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.RandomForest");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.bayes.BayesNet");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SMO");
-		*/
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.LMT", isWPDPWithFeatureSelection);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.J48", isWPDPWithFeatureSelection);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.trees.RandomForest", isWPDPWithFeatureSelection);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.bayes.BayesNet", isWPDPWithFeatureSelection);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic", isWPDPWithFeatureSelection);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SMO", isWPDPWithFeatureSelection);
+		
 		// various Analyzers
 		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.Logistic");
 		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"PAnalyzer", "weka.classifiers.functions.Logistic");
 		//conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"SCoAnalyzer", "weka.classifiers.functions.SimpleLogistic");
+		/*conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"SCoAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"SCoAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"PAnalyzer", "weka.classifiers.functions.SimpleLogistic");
@@ -119,13 +120,14 @@ public class ExpRunnerTest {
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.Significance, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.RelieF, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, FeatureSelectors.None, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic");
-		
+		*/
 		//}
 	}
 
 	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,
-			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg) {
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + ".txt");
+			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg,boolean isWPDPWithFeatureSelection) {
+		String strIsWPDPWithFS = isWPDPWithFeatureSelection? "_WPDP_FS":"";
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/UW/HDP+/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + strIsWPDPWithFS+ ".txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
@@ -198,7 +200,7 @@ public class ExpRunnerTest {
 								withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
 													targetInstances.testCV(folds, fold),
 													tarlabelInfo[1],
-													mlAlg);
+													mlAlg,isWPDPWithFeatureSelection,fSelector);
 								withinResults.put(key,withinResult);		
 							}
 							

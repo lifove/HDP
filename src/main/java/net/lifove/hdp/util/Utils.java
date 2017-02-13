@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import net.lifove.hdp.MetricSelector;
+import net.lifove.hdp.util.Utils.FeatureSelectors;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.attributeSelection.ChiSquaredAttributeEval;
 import weka.attributeSelection.GainRatioAttributeEval;
@@ -23,12 +25,16 @@ import weka.filters.Filter;
 
 public class Utils {
 	
-	public static String doCrossPrediction(Instances source,Instances target,String strPos,String mlAlg){
+	public static String doCrossPrediction(Instances source,Instances target,String strPos,String mlAlg,boolean applyFeatureSelection,FeatureSelectors fSelector){
 		String result = "";
 		
 		int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(strPos);
 		try {
 			Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, mlAlg, null);
+			
+			if(applyFeatureSelection)
+				source = new MetricSelector(source,fSelector).getNewInstances();
+
 			classifier.buildClassifier(source);
 			
 			Evaluation eval = new Evaluation(source);
