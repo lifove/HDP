@@ -162,7 +162,7 @@ public class ExpRunner {
 							else{
 								withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
 													targetInstances.testCV(folds, fold),
-													tarlabelInfo[1]);
+													tarlabelInfo[1],mlAlg);
 								withinResults.put(key,withinResult);		
 							}
 							

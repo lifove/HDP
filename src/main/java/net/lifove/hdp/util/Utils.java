@@ -23,12 +23,12 @@ import weka.filters.Filter;
 
 public class Utils {
 	
-	public static String doCrossPrediction(Instances source,Instances target,String strPos){
+	public static String doCrossPrediction(Instances source,Instances target,String strPos,String mlAlg){
 		String result = "";
 		
 		int posClassValueIndex = source.attribute(source.classIndex()).indexOfValue(strPos);
 		try {
-			Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, "weka.classifiers.functions.Logistic", null);
+			Classifier classifier = (Classifier) weka.core.Utils.forName(Classifier.class, mlAlg, null);
 			classifier.buildClassifier(source);
 			
 			Evaluation eval = new Evaluation(source);

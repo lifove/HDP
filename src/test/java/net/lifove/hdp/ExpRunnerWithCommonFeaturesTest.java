@@ -123,7 +123,8 @@ public class ExpRunnerWithCommonFeaturesTest {
 							else{
 								withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
 													targetInstances.testCV(folds, fold),
-													tarlabelInfo[1]);
+													tarlabelInfo[1],
+													"weka.classifiers.functions.Logistic");
 								withinResults.put(key,withinResult);		
 							}
 							
