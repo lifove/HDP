@@ -127,7 +127,7 @@ public class ExpRunnerTest {
 	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,
 			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg,boolean isWPDPWithFeatureSelection) {
 		String strIsWPDPWithFS = isWPDPWithFeatureSelection? "_WPDP_FS":"";
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/UW/HDP+/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + strIsWPDPWithFS+ ".txt");
+		Path path = Paths.get(System.getProperty("user.home") + "/Documents/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + strIsWPDPWithFS+ ".txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
