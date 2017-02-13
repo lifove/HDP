@@ -93,7 +93,7 @@ public class ExpRunner {
 			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg, boolean isWPDPWithFS) {
 		
 		String strIsWPDPWithFS = isWPDPWithFS? "_WPDP_FS":"";
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/UW/HDP+/Results/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + strIsWPDPWithFS + "_main.txt");
+		Path path = Paths.get(pathToSaveResults + "/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + strIsWPDPWithFS + "_main.txt");
 		
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 		
