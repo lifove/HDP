@@ -105,7 +105,7 @@ public class ResultTableGenerator {
 		sourceGroups.put("ar5","SOFTLAB");
 		sourceGroups.put("ar6","SOFTLAB");
 
-		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
+		String pathToResults = System.getProperty("user.home") + "/HDP/Results/";
 
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
@@ -151,12 +151,14 @@ public class ResultTableGenerator {
 			DecimalFormat dec, double cutoff,String analyzer, String mlAlg,FeatureSelectors fSelector, boolean isWPDPWithFS) {
 		System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff) + "_" + fSelector.name() + "_" + analyzer + "_" + mlAlg);
 
-		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + 
-				decForCutoff.format(cutoff) + "_" + 
-				fSelector.name() + "_" + 
-				analyzer + "_" + 
-				mlAlg + 
-				"_main.txt",false);
+		String pathStrWPDPWithFS = isWPDPWithFS? "_WPDP_FS":"";
+                ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + 
+                                decForCutoff.format(cutoff) + "_" + 
+                                fSelector.name() + "_" + 
+                                analyzer + "_" + 
+			     	mlAlg +
+                                pathStrWPDPWithFS +
+                                "_main.txt",false);
 
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder
@@ -302,16 +304,15 @@ public class ResultTableGenerator {
 				// CLAMI
 				ArrayList<Double> clami = new ArrayList<Double>();
 				ArrayList<Double> mediansCLAMI = new ArrayList<Double>();
-				//for(String srcKey:validSources){
-				String srcKey = "";
-				ArrayList<Prediction> predicitonsCLAMI = predicitonsCLAMIBySource.get(srcKey);
-				ArrayList<Double> aucValues = new ArrayList<Double>();
-				for(int i=0; i<predicitonsCLAMI.size();i++){
-					clami.add(predicitonsCLAMI.get(i).AUC);
-					aucValues.add(predicitonsCLAMI.get(i).AUC);
+				for(String srcKey:validSources){
+					ArrayList<Prediction> predicitonsCLAMI = predicitonsCLAMIBySource.get(srcKey); // clami don't have source, but we compute CLAMI has source for each comparison  
+					ArrayList<Double> aucValues = new ArrayList<Double>();
+					for(int i=0; i<predicitonsCLAMI.size();i++){
+						clami.add(predicitonsCLAMI.get(i).AUC);
+						aucValues.add(predicitonsCLAMI.get(i).AUC);
+					}
+					mediansCLAMI.add(getMedian(aucValues));
 				}
-				mediansCLAMI.add(getMedian(aucValues));
-				//}
 				c.assign("control", Doubles.toArray(clami));
 				RList lCLAMI = c.eval("cliff.delta(treatment,control)").asList();
 
@@ -358,9 +359,9 @@ public class ResultTableGenerator {
 				
 				int wTestCLAMIHDP = isSignificantByWilcoxonTest(mediansCLAMI,mediansHDP);
 				if(wTestCLAMIHDP==1)
-					strHDPAUC = strHDPAUC + "\textsuperscript{\\^}";
+					strHDPAUC = strHDPAUC + "\\textsuperscript{\\^}";
 				else if(wTestIFSHDP==-1)
-					strCLAMIAUC = strCLAMIAUC + "\textsuperscript{\\^}";
+					strCLAMIAUC = strCLAMIAUC + "\\textsuperscript{\\^}";
 
 				resultLines.put(orderedProjectName.indexOf(key), target + "\t&" +
 						strWPDPAUC + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
@@ -379,7 +380,7 @@ public class ResultTableGenerator {
 					ArrayList<Prediction> wdpPredictions = predicitonsWPDPBySource.get(source);
 					ArrayList<Prediction> cmPredictions = predicitonsCMBySource.get(source);
 					ArrayList<Prediction> ifsPredictins = predicitonsIFSBySource.get(source);
-					ArrayList<Prediction> clamiPredictins = predicitonsCLAMIBySource.get(""); // clami don't have source, all cases have "" here.
+					ArrayList<Prediction> clamiPredictins = predicitonsCLAMIBySource.get(source); // clami don't have source, but we compute CLAMI has source for each comparison 
 
 					ArrayList<Double> hdpAUCs = new ArrayList<Double>();
 					ArrayList<Double> wpdpAUCs = new ArrayList<Double>();
@@ -516,9 +517,9 @@ public class ResultTableGenerator {
 			
 			int wTestCLAMIHDP = isSignificantByWilcoxonTest(resultsCLAMI,resultsHDP);
 			if(wTestCLAMIHDP==1)
-				hdpMedian = hdpMedian + "\textsuperscript{\\^}";
+				hdpMedian = hdpMedian + "\\textsuperscript{\\^}";
 			else if(wTestCLAMIHDP==-1)
-				clamiMedian = clamiMedian + "\textsuperscript{\\^}";
+				clamiMedian = clamiMedian + "\\textsuperscript{\\^}";
 
 			System.out.println("\\hline\n{\\bf {\\em All}}\t&" + 
 					wpdpMedian + "\t" + 
@@ -593,9 +594,9 @@ public class ResultTableGenerator {
 			
 			int wTestCLAMIHDP = isSignificantByWilcoxonTest(clamiAUCs,hdpAUCs);
 			if(wTestCLAMIHDP==1)
-				strHDPAUC = strHDPAUC + "\textsuperscript{\\^}";
+				strHDPAUC = strHDPAUC + "\\textsuperscript{\\^}";
 			else if(wTestCLAMIHDP==-1)
-				strCLAMIAUC = strCLAMIAUC + "\textsuperscript{\\^}";
+				strCLAMIAUC = strCLAMIAUC + "\\textsuperscript{\\^}";
 
 			System.out.println(sourceGroup +"\t&" + strWPDPAUC + "\t&" + 
 					strCMAUC + "\t&" + 
@@ -616,25 +617,27 @@ public class ResultTableGenerator {
 				int repeat = Integer.parseInt(splitLine[0]);
 				int fold =  Integer.parseInt(splitLine[1]);
 				Double AUC = Double.parseDouble(splitLine[6]);
+				
+				for(String source:orderedProjectName){  // CLAMI does not have source but we generate hashmap as a source exists to make HashMap consistent as IFS and CM results for easy comparision
+					// only consider valid prediction from HDP results
+					if(!validHDPPrediction.contains((source+target+repeat+ "," + fold))) continue;
 
-				if(!resultsCLAMI.containsKey(target)){
-					HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
-					ArrayList<Prediction> predictions = new ArrayList<Prediction>();
-					predictions.add(new Prediction("",target,fold,repeat,AUC));
-					resultsHDPBySource.put("",predictions);
-					resultsCLAMI.put(target, resultsHDPBySource);
-				}else{
-					if(!resultsCLAMI.get(target).containsKey("")){
-						ArrayList<Prediction> prediction = new ArrayList<Prediction>();
-						prediction.add(new Prediction("",target,fold,repeat,AUC));
-						resultsCLAMI.get(target).put("",prediction);
+					if(!resultsCLAMI.containsKey(target)){
+						HashMap<String,ArrayList<Prediction>> resultsHDPBySource = new HashMap<String,ArrayList<Prediction>>();
+						ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+						predictions.add(new Prediction(source,target,fold,repeat,AUC));
+						resultsHDPBySource.put(source,predictions);
+						resultsCLAMI.put(target, resultsHDPBySource);
+					}else{
+						if(!resultsCLAMI.get(target).containsKey(source)){
+							ArrayList<Prediction> prediction = new ArrayList<Prediction>();
+							prediction.add(new Prediction(source,target,fold,repeat,AUC));
+							resultsCLAMI.get(target).put(source,prediction);
+						}
+						resultsCLAMI.get(target).get(source).add(new Prediction(source,target,fold,repeat,AUC));
 					}
-					resultsCLAMI.get(target).get("").add(new Prediction("",target,fold,repeat,AUC));
 				}
-
-				//if(lineCount%1000==0)
-				//	System.out.println("Processing CM results(" + lineCount + "): " + (int)(System.currentTimeMillis()-startTime)/millis + "s");
-			}
+			}	
 		}
 	}
 
