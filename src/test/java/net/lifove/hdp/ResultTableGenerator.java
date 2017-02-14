@@ -105,32 +105,40 @@ public class ResultTableGenerator {
 		sourceGroups.put("ar5","SOFTLAB");
 		sourceGroups.put("ar6","SOFTLAB");
 		
-		String pathToResults = System.getProperty("user.home") + "/Documents/HDP/Results/";
+		String pathToResults = System.getProperty("user.home") + "/HDP/Results/";
 		
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
 		
 		DecimalFormat decForCutoff = new DecimalFormat("0.00");
 		DecimalFormat dec = new DecimalFormat("0.000");
+
+		boolean isWPDPWithFS = true;
 		
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 			
+		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+                //                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare,isWPDPWithFS);
+		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+                //                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.Significance,isWPDPWithFS);
+		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+                //                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.RelieF,isWPDPWithFS);
+		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
+                //                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.None,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.10,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.20,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.30,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.40,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.functions.SMO",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.50,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.trees.J48",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.60,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.70,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
-		generate(orderedProjectName, pathToResults, linesIFS, linesCM, decForCutoff, dec,
-				0.80,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio);
+				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio,isWPDPWithFS);
 		
 		//}
 	}
@@ -138,14 +146,16 @@ public class ResultTableGenerator {
 	private void generate(ArrayList<String> orderedProjectName, String pathToResults, ArrayList<String> linesIFS,
 			ArrayList<String> linesCM,
 			DecimalFormat decForCutoff,
-			DecimalFormat dec, double cutoff,String analyzer, String mlAlg,FeatureSelectors fSelector) {
+			DecimalFormat dec, double cutoff,String analyzer, String mlAlg,FeatureSelectors fSelector, boolean isWPDPWithFS) {
 		System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff) + "_" + fSelector.name() + "_" + analyzer + "_" + mlAlg);
-															
+
+		String pathStrWPDPWithFS = isWPDPWithFS? "_WPDP_FS":"";
 		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + 
 				decForCutoff.format(cutoff) + "_" + 
 				fSelector.name() + "_" + 
 				analyzer + "_" + 
-				mlAlg + 
+				mlAlg +
+				pathStrWPDPWithFS +
 				"_main.txt",false);
 
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
