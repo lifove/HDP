@@ -70,8 +70,8 @@ public class ExpRunnerTest {
 		
 		//String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
 		//String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/HDP/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer,PAnalyzer,SCoAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
-		String pathToDataset = System.getProperty("user.home") + "/Documents/UW/HDP+/data/";
-		String pathToSavedMatchingScores = System.getProperty("user.home") + "/Documents/UW/HDP+/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
+		String pathToDataset = System.getProperty("user.home") + "/HDP/data/";
+		String pathToSavedMatchingScores = System.getProperty("user.home") + "/HDP/CDDP/data/cofeatures_20160923_All_Matched_for_fs_none_KSAnalyzer,PAnalyzer,SCoAnalyzer.txt";//cofeatures_20160922_All_Matched_for_fs_none_KSAnalyzer.txt";
 		
 		FeatureSelectors fSelector = FeatureSelectors.GainRatio;
 		DecimalFormat dec = new DecimalFormat("0.00");
@@ -104,14 +104,13 @@ public class ExpRunnerTest {
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SimpleLogistic", isWPDPWithFeatureSelection);
 		*/
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"KSAnalyzer", "weka.classifiers.functions.SMO", isWPDPWithFeatureSelection);
-*/
 		
 		// various Analyzers
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"KSAnalyzer", "weka.classifiers.functions.Logistic",isWPDPWithFeatureSelection);
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"PAnalyzer", "weka.classifiers.functions.Logistic",isWPDPWithFeatureSelection);
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"SCoAnalyzer", "weka.classifiers.functions.Logistic",isWPDPWithFeatureSelection);
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"PAnalyzer", "weka.classifiers.functions.Logistic",isWPDPWithFeatureSelection);
-                conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"SCoAnalyzer", "weka.classifiers.functions.Logistic",isWPDPWithFeatureSelection);
+        conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"SCoAnalyzer", "weka.classifiers.functions.Logistic",isWPDPWithFeatureSelection);
 		
 		/*conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.05,"SCoAnalyzer", "weka.classifiers.functions.SimpleLogistic");
 		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, fSelector, dec, 0.90,"SCoAnalyzer", "weka.classifiers.functions.SimpleLogistic");
