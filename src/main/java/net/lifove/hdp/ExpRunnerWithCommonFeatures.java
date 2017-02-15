@@ -2,6 +2,7 @@ package net.lifove.hdp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -66,13 +67,14 @@ public class ExpRunnerWithCommonFeatures {
 
 		String pathToDataset = args[0];
 		String pathToSaveResults = args[1];
-		String mlAlg = args[2]; //"weka.classifiers.functions.SimpleLogistic"
+		String commonMetricsDataFile = args[2];
+		String mlAlg = args[3]; //"weka.classifiers.functions.SimpleLogistic"
 		
 		Runner runner = new Runner();
 
 		Path path = Paths.get(pathToSaveResults + "/HDP_common_metrics_" + mlAlg + ".txt");
 
-		ArrayList<String> commonMetrics = getLines(pathToDataset + "commonfeatures_single.txt",false);
+		ArrayList<String> commonMetrics = getLines(pathToDataset + File.separator + commonMetricsDataFile,false);
 
 		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
 
