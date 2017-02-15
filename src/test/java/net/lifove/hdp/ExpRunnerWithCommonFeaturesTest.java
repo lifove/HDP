@@ -32,17 +32,17 @@ public class ExpRunnerWithCommonFeaturesTest {
 				"ReLink/Safe.arff",
 				"ReLink/Apache.arff",
 				"ReLink/Zxing.arff",
-				"NASA/mc2.arff", // new
-				"NASA/pc5.arff", // new
-				"NASA/pc1.arff",
-				"NASA/pc2.arff", // new
-				"NASA/jm1.arff", // new
-				"NASA/pc4.arff",
-				"NASA/kc3.arff", // new
-				"NASA/pc3.arff",
-				"NASA/mw1.arff",
-				"NASA/cm1.arff",
-				"NASA/mc1.arff", // new
+				"NASA/MC2.arff", // new
+				"NASA/PC5.arff", // new
+				"NASA/PC1.arff",
+				"NASA/PC2.arff", // new
+				"NASA/JM1.arff", // new
+				"NASA/PC4.arff",
+				"NASA/KC3.arff", // new
+				"NASA/PC3.arff",
+				"NASA/MW1.arff",
+				"NASA/CM1.arff",
+				"NASA/MC1.arff", // new
 				"SOFTLAB/ar5.arff",
 				"SOFTLAB/ar3.arff",
 				"SOFTLAB/ar4.arff",

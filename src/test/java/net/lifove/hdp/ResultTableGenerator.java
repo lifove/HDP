@@ -118,14 +118,14 @@ public class ResultTableGenerator {
 
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 
-		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-		//                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare,isWPDPWithFS);
-		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-		//                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.Significance,isWPDPWithFS);
-		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-		//                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.RelieF,isWPDPWithFS);
-		//generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-		//                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.None,isWPDPWithFS);
+		/*generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+		                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+		                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.Significance,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+		                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.RelieF,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+		                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.None,isWPDPWithFS);*/
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
@@ -140,6 +140,7 @@ public class ResultTableGenerator {
 				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio,isWPDPWithFS);
+		
 
 		//}
 	}
@@ -351,18 +352,18 @@ public class ResultTableGenerator {
 				else if(wTestCMHDP==-1)
 					strCMAUC = "\\underline{" + strCMAUC + "}";
 
+				int wTestCLAMIHDP = isSignificantByWilcoxonTest(mediansCLAMI,mediansHDP);
+                                if(wTestCLAMIHDP==1)
+                                        strHDPAUC = strHDPAUC + "$^{\\&}$";
+                                else if(wTestCLAMIHDP==-1)
+                                        strCLAMIAUC = strCLAMIAUC + "$^{\\&}$";
+
 				int wTestIFSHDP = isSignificantByWilcoxonTest(mediansIFS,mediansHDP);
 				if(wTestIFSHDP==1)
 					strHDPAUC = strHDPAUC + "*";
 				else if(wTestIFSHDP==-1)
 					strIFSAUC = strIFSAUC + "*";
 				
-				int wTestCLAMIHDP = isSignificantByWilcoxonTest(mediansCLAMI,mediansHDP);
-				if(wTestCLAMIHDP==1)
-					strHDPAUC = strHDPAUC + "\\textsuperscript{\\^}";
-				else if(wTestIFSHDP==-1)
-					strCLAMIAUC = strCLAMIAUC + "\\textsuperscript{\\^}";
-
 				resultLines.put(orderedProjectName.indexOf(key), target + "\t&" +
 						strWPDPAUC + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
 						strCLAMIAUC + " (" + dec.format(clamiAUCCliffDelta) + "," + clamiAUCMagnitute + ")\t&" + 
@@ -509,18 +510,18 @@ public class ResultTableGenerator {
 			else if(wTestCMHDP==-1)
 				cmMedian = "\\underline{" + cmMedian + "}";
 
+			int wTestCLAMIHDP = isSignificantByWilcoxonTest(resultsCLAMI,resultsHDP);
+                        if(wTestCLAMIHDP==1)
+                                hdpMedian = hdpMedian + "$^{\\&}$";
+                        else if(wTestCLAMIHDP==-1)
+                                clamiMedian = clamiMedian + "$^{\\&}$";
+
 			int wTestIFSHDP = isSignificantByWilcoxonTest(resultsIFS,resultsHDP);
 			if(wTestIFSHDP==1)
 				hdpMedian = hdpMedian + "*";
 			else if(wTestIFSHDP==-1)
 				ifsMedian = ifsMedian + "*";
 			
-			int wTestCLAMIHDP = isSignificantByWilcoxonTest(resultsCLAMI,resultsHDP);
-			if(wTestCLAMIHDP==1)
-				hdpMedian = hdpMedian + "\\textsuperscript{\\^}";
-			else if(wTestCLAMIHDP==-1)
-				clamiMedian = clamiMedian + "\\textsuperscript{\\^}";
-
 			System.out.println("\\hline\n{\\bf {\\em All}}\t&" + 
 					wpdpMedian + "\t" + 
 					"\t&" +
@@ -586,18 +587,18 @@ public class ResultTableGenerator {
 			else if(wTestCMHDP==-1)
 				strCMAUC = "\\underline{" + strCMAUC + "}";
 
+			int wTestCLAMIHDP = isSignificantByWilcoxonTest(clamiAUCs,hdpAUCs);
+                        if(wTestCLAMIHDP==1)
+                                strHDPAUC = strHDPAUC + "$^{\\&}$";
+                        else if(wTestCLAMIHDP==-1)
+                                strCLAMIAUC = strCLAMIAUC + "$^{\\&}$";
+
 			int wTestIFSHDP = isSignificantByWilcoxonTest(ifsAUCs,hdpAUCs);
 			if(wTestIFSHDP==1)
 				strHDPAUC = strHDPAUC + "*";
 			else if(wTestIFSHDP==-1)
 				strIFSAUC = strIFSAUC + "*";
 			
-			int wTestCLAMIHDP = isSignificantByWilcoxonTest(clamiAUCs,hdpAUCs);
-			if(wTestCLAMIHDP==1)
-				strHDPAUC = strHDPAUC + "\\textsuperscript{\\^}";
-			else if(wTestCLAMIHDP==-1)
-				strCLAMIAUC = strCLAMIAUC + "\\textsuperscript{\\^}";
-
 			System.out.println(sourceGroup +"\t&" + strWPDPAUC + "\t&" + 
 					strCMAUC + "\t&" + 
 					strCLAMIAUC + "\t&" + 

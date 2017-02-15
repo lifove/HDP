@@ -22,3 +22,7 @@ bin
 
 # Mac
 .DS_Store
+
+*.txt
+
+.gitconfig
