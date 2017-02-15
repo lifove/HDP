@@ -118,17 +118,22 @@ public class ResultTableGenerator {
 
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 
-		/*generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-		                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare,isWPDPWithFS);
-		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-		                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.Significance,isWPDPWithFS);
-		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-		                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.RelieF,isWPDPWithFS);
-		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-		                0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.None,isWPDPWithFS);*/
+
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio,isWPDPWithFS);
+
+		// various FSs
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.Significance,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.RelieF,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.None,isWPDPWithFS);
+
+		// variius MLs
+		/*generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio,isWPDPWithFS);
@@ -139,8 +144,8 @@ public class ResultTableGenerator {
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio,isWPDPWithFS);
-		
+				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio,isWPDPWithFS);*/
+
 
 		//}
 	}
@@ -153,13 +158,13 @@ public class ResultTableGenerator {
 		System.out.println("\n\n====cutoff: " + decForCutoff.format(cutoff) + "_" + fSelector.name() + "_" + analyzer + "_" + mlAlg);
 
 		String pathStrWPDPWithFS = isWPDPWithFS? "_WPDP_FS":"";
-                ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + 
-                                decForCutoff.format(cutoff) + "_" + 
-                                fSelector.name() + "_" + 
-                                analyzer + "_" + 
-			     	mlAlg +
-                                pathStrWPDPWithFS +
-                                "_main.txt",false);
+		ArrayList<String> linesHDP = getLines(pathToResults + "HDP_C" + 
+				decForCutoff.format(cutoff) + "_" + 
+				fSelector.name() + "_" + 
+				analyzer + "_" + 
+				mlAlg +
+				pathStrWPDPWithFS +
+				"_main.txt",false);
 
 		HashMap<String,HashMap<String,ArrayList<Prediction>>> resultsHDP = new HashMap<String,HashMap<String,ArrayList<Prediction>>>(); // key: target, second key: source
 		HashSet<String> validHDPPrediction = new HashSet<String>(); // value: source target repeat folder
@@ -352,23 +357,23 @@ public class ResultTableGenerator {
 				else if(wTestCMHDP==-1)
 					strCMAUC = "\\underline{" + strCMAUC + "}";
 
-				int wTestCLAMIHDP = isSignificantByWilcoxonTest(mediansCLAMI,mediansHDP);
-                                if(wTestCLAMIHDP==1)
-                                        strHDPAUC = strHDPAUC + "$^{\\&}$";
-                                else if(wTestCLAMIHDP==-1)
-                                        strCLAMIAUC = strCLAMIAUC + "$^{\\&}$";
-
 				int wTestIFSHDP = isSignificantByWilcoxonTest(mediansIFS,mediansHDP);
 				if(wTestIFSHDP==1)
 					strHDPAUC = strHDPAUC + "*";
 				else if(wTestIFSHDP==-1)
 					strIFSAUC = strIFSAUC + "*";
 				
+				int wTestCLAMIHDP = isSignificantByWilcoxonTest(mediansCLAMI,mediansHDP);
+				if(wTestCLAMIHDP==1)
+					strHDPAUC = strHDPAUC + "$^{\\&}$";
+				else if(wTestCLAMIHDP==-1)
+					strCLAMIAUC = strCLAMIAUC + "$^{\\&}$";
+
 				resultLines.put(orderedProjectName.indexOf(key), target + "\t&" +
 						strWPDPAUC + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
-						strCLAMIAUC + " (" + dec.format(clamiAUCCliffDelta) + "," + clamiAUCMagnitute + ")\t&" + 
 						strCMAUC + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
 						strIFSAUC + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
+						strCLAMIAUC + " (" + dec.format(clamiAUCCliffDelta) + "," + clamiAUCMagnitute + ")\t&" + 
 						strHDPAUC + " \\\\ \\hline");
 
 				//get results liens for Win/Tie/Loss evaluation
@@ -438,16 +443,16 @@ public class ResultTableGenerator {
 				totalIFSWTL[0] += ifsWTL[0];
 				totalIFSWTL[1] += ifsWTL[1];
 				totalIFSWTL[2] += ifsWTL[2];
-				
+
 				totalCLAMIWTL[0] += clamiWTL[0];
 				totalCLAMIWTL[1] += clamiWTL[1];
 				totalCLAMIWTL[2] += clamiWTL[2];
 
 				String strWTL = target +
 						"\t&" + wpdpWTL[0] +"\t&" + wpdpWTL[1] +" \t&" + wpdpWTL[2] +
-						"\t&" + clamiWTL[0] +"\t&" + clamiWTL[1] +" \t&" + clamiWTL[2] +
 						"\t&" + cmWTL[0] +"\t&" + cmWTL[1] +" \t&" + cmWTL[2] +
 						"\t&" + ifsWTL[0] +"\t&" + ifsWTL[1] +" \t&" + ifsWTL[2] +
+						"\t&" + clamiWTL[0] +"\t&" + clamiWTL[1] +" \t&" + clamiWTL[2] +
 						"\\\\ \\hline";
 
 				resultLinesWinTieLoss.put(orderedProjectName.indexOf(key), strWTL);
@@ -467,7 +472,7 @@ public class ResultTableGenerator {
 			double winAgainstIFS = ((double)totalIFSWTL[0]/numPredictionCombinations)*100;
 			double tieAgainstIFS = ((double)totalIFSWTL[1]/numPredictionCombinations)*100;
 			double lossAgainstIFS = ((double)totalIFSWTL[2]/numPredictionCombinations)*100;
-			
+
 			double winAgainstCLAMI = ((double)totalCLAMIWTL[0]/numPredictionCombinations)*100;
 			double tieAgainstCLAMI = ((double)totalCLAMIWTL[1]/numPredictionCombinations)*100;
 			double lossAgainstCLAMI = ((double)totalCLAMIWTL[2]/numPredictionCombinations)*100;
@@ -477,15 +482,16 @@ public class ResultTableGenerator {
 					"Total\t&\\specialcell{{" + totalWPDPWTL[0] +"}\\\\{" + decPercent.format(winAgainstWPDP) + "\\%}}\t&" + 
 							"\\specialcell{{" +	totalWPDPWTL[1] +"}\\\\{" + decPercent.format(tieAgainstWPDP) + "\\%}}\t&" + 
 							"\\specialcell{{" +	totalWPDPWTL[2] +"}\\\\{" + decPercent.format(lossAgainstWPDP) + "\\%}}\t&" +
-							"\\specialcell{{" +	totalCLAMIWTL[0] +"}\\\\{" + decPercent.format(winAgainstCLAMI) + "\\%}}\t&" + 
-							"\\specialcell{{" +	totalCLAMIWTL[1] +"}\\\\{" + decPercent.format(tieAgainstCLAMI) + "\\%}}\t&" + 
-							"\\specialcell{{" +	totalCLAMIWTL[2] +"}\\\\{" + decPercent.format(lossAgainstCLAMI) + "\\%}}\t&" + 
 							"\\specialcell{{" +	totalCMWTL[0] +"}\\\\{" + decPercent.format(winAgainstCM) + "\\%}}\t&" + 
 							"\\specialcell{{" +	totalCMWTL[1] +"}\\\\{" + decPercent.format(tieAgainstCM) + "\\%}}\t&" + 
 							"\\specialcell{{" +	totalCMWTL[2] +"}\\\\{" + decPercent.format(lossAgaisnCM) + "\\%}}\t&" + 
 							"\\specialcell{{" +	totalIFSWTL[0] +"}\\\\{" + decPercent.format(winAgainstIFS) + "\\%}}\t&" + 
 							"\\specialcell{{" +	totalIFSWTL[1] +"}\\\\{" + decPercent.format(tieAgainstIFS) + "\\%}}\t&" + 
-							"\\specialcell{{" +	totalIFSWTL[2] +"}\\\\{" + decPercent.format(lossAgainstIFS) + "\\%}}\\\\ \\hline");
+							"\\specialcell{{" +	totalIFSWTL[2] +"}\\\\{" + decPercent.format(lossAgainstIFS) + "\\%}}\t&" +
+							"\\specialcell{{" +	totalCLAMIWTL[0] +"}\\\\{" + decPercent.format(winAgainstCLAMI) + "\\%}}\t&" + 
+							"\\specialcell{{" +	totalCLAMIWTL[1] +"}\\\\{" + decPercent.format(tieAgainstCLAMI) + "\\%}}\t&" + 
+							"\\specialcell{{" +	totalCLAMIWTL[2] +"}\\\\{" + decPercent.format(lossAgainstCLAMI) + "\\%}}" + 
+							"\\\\ \\hline");
 
 			for(int i=0;i<resultLines.size();i++){
 				System.out.println(resultLines.get(i));
@@ -510,26 +516,26 @@ public class ResultTableGenerator {
 			else if(wTestCMHDP==-1)
 				cmMedian = "\\underline{" + cmMedian + "}";
 
-			int wTestCLAMIHDP = isSignificantByWilcoxonTest(resultsCLAMI,resultsHDP);
-                        if(wTestCLAMIHDP==1)
-                                hdpMedian = hdpMedian + "$^{\\&}$";
-                        else if(wTestCLAMIHDP==-1)
-                                clamiMedian = clamiMedian + "$^{\\&}$";
-
 			int wTestIFSHDP = isSignificantByWilcoxonTest(resultsIFS,resultsHDP);
 			if(wTestIFSHDP==1)
 				hdpMedian = hdpMedian + "*";
 			else if(wTestIFSHDP==-1)
 				ifsMedian = ifsMedian + "*";
 			
+			int wTestCLAMIHDP = isSignificantByWilcoxonTest(resultsCLAMI,resultsHDP);
+			if(wTestCLAMIHDP==1)
+				hdpMedian = hdpMedian + "$^{\\&}$";
+				else if(wTestCLAMIHDP==-1)
+					clamiMedian = clamiMedian + "$^{\\&}$";
+			
 			System.out.println("\\hline\n{\\bf {\\em All}}\t&" + 
 					wpdpMedian + "\t" + 
-					"\t&" +
-					clamiMedian + "\t" +
 					"\t&" +
 					cmMedian + "\t" +
 					"\t&" +
 					ifsMedian + "\t" +
+					"\t&" +
+					clamiMedian + "\t" +
 					"\t&" +
 					hdpMedian);
 
@@ -587,22 +593,22 @@ public class ResultTableGenerator {
 			else if(wTestCMHDP==-1)
 				strCMAUC = "\\underline{" + strCMAUC + "}";
 
-			int wTestCLAMIHDP = isSignificantByWilcoxonTest(clamiAUCs,hdpAUCs);
-                        if(wTestCLAMIHDP==1)
-                                strHDPAUC = strHDPAUC + "$^{\\&}$";
-                        else if(wTestCLAMIHDP==-1)
-                                strCLAMIAUC = strCLAMIAUC + "$^{\\&}$";
-
 			int wTestIFSHDP = isSignificantByWilcoxonTest(ifsAUCs,hdpAUCs);
 			if(wTestIFSHDP==1)
 				strHDPAUC = strHDPAUC + "*";
 			else if(wTestIFSHDP==-1)
 				strIFSAUC = strIFSAUC + "*";
 			
+			int wTestCLAMIHDP = isSignificantByWilcoxonTest(clamiAUCs,hdpAUCs);
+			if(wTestCLAMIHDP==1)
+				strHDPAUC = strHDPAUC + "$^{\\&}$";
+			else if(wTestCLAMIHDP==-1)
+				strCLAMIAUC = strCLAMIAUC + "$^{\\&}$";
+
 			System.out.println(sourceGroup +"\t&" + strWPDPAUC + "\t&" + 
 					strCMAUC + "\t&" + 
+					strIFSAUC + "\t&" +
 					strCLAMIAUC + "\t&" + 
-					strIFSAUC + "\t&" + 
 					strHDPAUC + "\t&" +
 					targetCoverage + " \\\\ \\hline\t\t" + targets.toString()
 					);
@@ -618,7 +624,7 @@ public class ResultTableGenerator {
 				int repeat = Integer.parseInt(splitLine[0]);
 				int fold =  Integer.parseInt(splitLine[1]);
 				Double AUC = Double.parseDouble(splitLine[6]);
-				
+
 				for(String source:orderedProjectName){  // CLAMI does not have source but we generate hashmap as a source exists to make HashMap consistent as IFS and CM results for easy comparision
 					// only consider valid prediction from HDP results
 					if(!validHDPPrediction.contains((source+target+repeat+ "," + fold))) continue;
