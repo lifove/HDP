@@ -65,85 +65,96 @@ public class ExpRunnerWithCommonFeaturesTest {
 				"AEEEM/ML.arff"
 		};
 		
-		String pathToDataset = System.getProperty("user.home") + "/Documents/HDP/data/";
+		String pathToDataset = System.getProperty("user.home") + "/HDP/data/";
 
-		Path path = Paths.get(System.getProperty("user.home") + "/Documents/HDP/Results/HDP_common_metrics.txt");
+		String[] mlAlgs = {"weka.classifiers.bayes.BayesNet",
+							"weka.classifiers.functions.Logistic",
+							"weka.classifiers.functions.SompleLogistic",
+							"weka.classifiers.functions.SMO",
+							"weka.classifiers.trees.J48",
+							"weka.classifiers.trees.LMT",
+							"weka.classifiers.trees.RandomForest"};
 		
-		ArrayList<String> commonMetrics = getLines(pathToDataset + "commonfeatures_single.txt",false);
-		
-		HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
-		
-		HashMap<String,String> withinResults = new HashMap<String,String>();
-		
-		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+		for(String mlAlg:mlAlgs){
 			
-			for(String target:projects){
-				for(String source:projects){
-					if(source.equals(target))
-						continue;
-					
-					String[] srclabelInfo = getLabelInfo(source);
-					String[] tarlabelInfo = getLabelInfo(target);
-					
-					Instances sourceInstances = Utils.loadArff(pathToDataset +  source, srclabelInfo[0]);
-					Instances targetInstances = Utils.loadArff(pathToDataset +  target, tarlabelInfo[0]);
-					
-					// Skip datasets with the same number of attributes
-					if(sameMetricSets(sourceInstances,targetInstances)){
-						System.err.println("SKIP: the number of attributes is same.: " + source + "==> " + target);
-						continue;
-					}
-					
-					ArrayList<String> strMatchedMetrics;
-					
-					String keyForMatchedMetrics =source + target;
-					
-					if(mapMatchedMetrics.containsKey(keyForMatchedMetrics))
-						strMatchedMetrics = mapMatchedMetrics.get(keyForMatchedMetrics);
-					else{
-						strMatchedMetrics = getStrMatchedMetrics(commonMetrics,source,target);
-						mapMatchedMetrics.put(keyForMatchedMetrics, strMatchedMetrics);
-					}
-					
-					int numRuns = 500;
-					int folds =2;
-					
-					for(int repeat=0;repeat < numRuns;repeat++){
+			Path path = Paths.get(System.getProperty("user.home") + "/HDP/Results/HDP_common_metrics_" + mlAlg + ".txt");
+			
+			ArrayList<String> commonMetrics = getLines(pathToDataset + "commonfeatures_single.txt",false);
+			
+			HashMap<String,ArrayList<String>> mapMatchedMetrics = new HashMap<String,ArrayList<String>>();
+			
+			HashMap<String,String> withinResults = new HashMap<String,String>();
+			
+			try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+				
+				for(String target:projects){
+					for(String source:projects){
+						if(source.equals(target))
+							continue;
 						
-						// randomize with different seed for each iteration
-						targetInstances.randomize(new Random(repeat)); 
-						targetInstances.stratify(folds);
+						String[] srclabelInfo = getLabelInfo(source);
+						String[] tarlabelInfo = getLabelInfo(target);
 						
-						for(int fold = 0; fold < folds; fold++){
-							String withinResult = "";
+						Instances sourceInstances = Utils.loadArff(pathToDataset +  source, srclabelInfo[0]);
+						Instances targetInstances = Utils.loadArff(pathToDataset +  target, tarlabelInfo[0]);
+						
+						// Skip datasets with the same number of attributes
+						if(sameMetricSets(sourceInstances,targetInstances)){
+							System.err.println("SKIP: the number of attributes is same.: " + source + "==> " + target);
+							continue;
+						}
+						
+						ArrayList<String> strMatchedMetrics;
+						
+						String keyForMatchedMetrics =source + target;
+						
+						if(mapMatchedMetrics.containsKey(keyForMatchedMetrics))
+							strMatchedMetrics = mapMatchedMetrics.get(keyForMatchedMetrics);
+						else{
+							strMatchedMetrics = getStrMatchedMetrics(commonMetrics,source,target);
+							mapMatchedMetrics.put(keyForMatchedMetrics, strMatchedMetrics);
+						}
+						
+						int numRuns = 500;
+						int folds =2;
+						
+						for(int repeat=0;repeat < numRuns;repeat++){
 							
-							String key = target + repeat + "," + fold; 
-							if(withinResults.containsKey(key))
-								withinResult = withinResults.get(key);
-							else{
-								withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
-													targetInstances.testCV(folds, fold),
-													tarlabelInfo[1],
-													"weka.classifiers.functions.Logistic",false,FeatureSelectors.None);
-								withinResults.put(key,withinResult);		
+							// randomize with different seed for each iteration
+							targetInstances.randomize(new Random(repeat)); 
+							targetInstances.stratify(folds);
+							
+							for(int fold = 0; fold < folds; fold++){
+								String withinResult = "";
+								
+								String key = target + repeat + "," + fold; 
+								if(withinResults.containsKey(key))
+									withinResult = withinResults.get(key);
+								else{
+									withinResult = Utils.doCrossPrediction(targetInstances.trainCV(folds, fold), 
+														targetInstances.testCV(folds, fold),
+														tarlabelInfo[1],
+														mlAlg,false,FeatureSelectors.None);
+									withinResults.put(key,withinResult);		
+								}
+								
+								
+								String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
+										tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, 0, true,FeatureSelectors.None,source,target,mlAlg);
+								
+								if(result.equals(""))
+									continue;
+								
+								writer.write(repeat + "," +fold + "," + source + "," + target + "," + 
+												source + target + "," +
+												withinResult + ","+ result + "\n" );
 							}
-							
-							
-							String result = runner.doHDP(false, sourceInstances, targetInstances.testCV(folds, fold), srclabelInfo[0], srclabelInfo[1],
-									tarlabelInfo[0], tarlabelInfo[1], strMatchedMetrics, 0, true,FeatureSelectors.None,source,target,"");
-							
-							if(result.equals(""))
-								continue;
-							
-							writer.write(repeat + "," +fold + "," + source + "," + target + "," + 
-											source + target + "," +
-											withinResult + ","+ result + "\n" );
 						}
 					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 	
