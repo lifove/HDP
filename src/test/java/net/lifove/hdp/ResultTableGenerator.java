@@ -106,10 +106,11 @@ public class ResultTableGenerator {
 		sourceGroups.put("ar6","SOFTLAB");
 
 		String pathToResults = System.getProperty("user.home") + "/HDP/Results/";
-
-		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results.txt",false);
-		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics.txt",false);
-		ArrayList<String> linesCLAMI = getLines(pathToResults + "CLAMI_for_HDP.txt",false);
+		String mlAlg = "weka.classifiers.functions.Logistic";
+		
+		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results_" +mlAlg + ".txt",false);
+		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics_" +mlAlg + ".txt",false);
+		ArrayList<String> linesCLAMI = getLines(pathToResults + "CLAMI_for_HDP_" + mlAlg + ".txt",false);
 
 		DecimalFormat decForCutoff = new DecimalFormat("0.00");
 		DecimalFormat dec = new DecimalFormat("0.000");
@@ -118,19 +119,18 @@ public class ResultTableGenerator {
 
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 
-
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
 				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio,isWPDPWithFS);
 
 		// various FSs
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.ChiSquare,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.ChiSquare,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.Significance,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.Significance,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.RelieF,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.RelieF,isWPDPWithFS);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.None,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.None,isWPDPWithFS);
 
 		// variius MLs
 		/*generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
@@ -369,7 +369,7 @@ public class ResultTableGenerator {
 				else if(wTestCLAMIHDP==-1)
 					strCLAMIAUC = strCLAMIAUC + "$^{\\&}$";
 
-				resultLines.put(orderedProjectName.indexOf(key), target + "\t&" +
+				resultLines.put(orderedProjectName.indexOf(key), getNewProjectName(target) + "\t&" +
 						strWPDPAUC + " (" + dec.format(wAUCCliffDelta) + "," + wAUCMagnitute + ")\t&" + 
 						strCMAUC + " (" + dec.format(cmAUCCliffDelta) + "," + cmAUCMagnitute + ")\t&" + 
 						strIFSAUC + " (" + dec.format(ifsAUCCliffDelta) + "," + ifsAUCMagnitute + ")\t&" + 
@@ -413,7 +413,7 @@ public class ResultTableGenerator {
 					String wtlAgainstCLAMI = evaluateWTL(clamiAUCs,hdpAUCs);
 
 					String sourceGroup = sourceGroups.get(source);
-					String strReulstForThisCombination = source + "," + target + "," +
+					String strReulstForThisCombination = source + "," + getNewProjectName(target) + "," +
 							dec.format(medianWPDP) + "," + wtlAgainstWPDP + "," +
 							dec.format(medianCLAMI) + "," + wtlAgainstCLAMI + "," +
 							dec.format(medianCM) + "," + wtlAgainstCM + "," +
@@ -448,7 +448,7 @@ public class ResultTableGenerator {
 				totalCLAMIWTL[1] += clamiWTL[1];
 				totalCLAMIWTL[2] += clamiWTL[2];
 
-				String strWTL = target +
+				String strWTL = getNewProjectName(target) +
 						"\t&" + wpdpWTL[0] +"\t&" + wpdpWTL[1] +" \t&" + wpdpWTL[2] +
 						"\t&" + cmWTL[0] +"\t&" + cmWTL[1] +" \t&" + cmWTL[2] +
 						"\t&" + ifsWTL[0] +"\t&" + ifsWTL[1] +" \t&" + ifsWTL[2] +
@@ -948,6 +948,19 @@ public class ResultTableGenerator {
 	double getMedian(ArrayList<Double> values){
 		DescriptiveStatistics stat = new DescriptiveStatistics( Doubles.toArray(values));	
 		return stat.getPercentile(50);
+	}
+	
+	String getNewProjectName(String projName){
+		if(projName.equals("apache")) return "Apache";
+		if(projName.equals("safe")) return "Safe";
+		if(projName.equals("zxing")) return "ZXing";
+		if(projName.equals("eq")) return "EQ";
+		if(projName.equals("jdt")) return "JDT";
+		if(projName.equals("lc")) return "LC";
+		if(projName.equals("pde")) return "PDE";
+		if(projName.equals("ml")) return "ML";
+		
+		return projName;
 	}
 }
 
