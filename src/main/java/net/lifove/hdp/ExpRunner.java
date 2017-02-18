@@ -181,7 +181,7 @@ public class ExpRunner {
 						
 						for(int fold = 0; fold < folds; fold++){
 							
-							if(existingPrediciton.contains(repeat + "," +fold + "," + source + "," + target)){ System.out.println(repeat + "," +fold + "," + source + "," + target); continue;}
+							if(existingPrediciton.contains(repeat + "," +fold + "," + source + "," + target)) continue;
 							
 							String withinResult = "";
 							
