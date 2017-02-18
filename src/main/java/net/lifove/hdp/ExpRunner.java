@@ -119,6 +119,8 @@ public class ExpRunner {
 		
 		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8,openOpt)) {
 			
+			HashMap<String,MetricSelector> selectedSourceFeatures = new HashMap<String,MetricSelector>();
+			
 			for(String target:projects){
 				for(String source:projects){
 					if(source.equals(target))
@@ -142,7 +144,13 @@ public class ExpRunner {
 					HashMap<String,Double>  matchingScores = matchingScoresByAttributeIndices.size()!=0?
 							getMatchingScoresByAttributeNames(sourceName,targetName,sourceInstances,targetInstances,matchingScoresByAttributeIndices.get(sourceName + "-" +targetName)):null;
 					
-					sourceInstances = new MetricSelector(sourceInstances,fSelector).getNewInstances();
+					if(!selectedSourceFeatures.containsKey(sourceName)){
+						MetricSelector mSelector = new MetricSelector(sourceInstances,fSelector);
+						sourceInstances = mSelector.getNewInstances();
+						selectedSourceFeatures.put(sourceName,mSelector);
+					} else
+						sourceInstances = selectedSourceFeatures.get(sourceName).getNewInstances();
+					
 					ArrayList<String> selectedSrcAttrNames = getAttrNames(sourceInstances);
 					
 					ArrayList<String> strMatchedMetrics;
@@ -173,7 +181,7 @@ public class ExpRunner {
 						
 						for(int fold = 0; fold < folds; fold++){
 							
-							if(existingPrediciton.contains(repeat + "," +fold + "," + source + "," + target)) continue;
+							if(existingPrediciton.contains(repeat + "," +fold + "," + source + "," + target)){ System.out.println(repeat + "," +fold + "," + source + "," + target); continue;}
 							
 							String withinResult = "";
 							
