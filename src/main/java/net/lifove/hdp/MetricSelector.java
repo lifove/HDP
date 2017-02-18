@@ -5,20 +5,20 @@ import net.lifove.hdp.util.Utils.FeatureSelectors;
 import weka.core.Instances;
 
 public class MetricSelector {
-	Instances instances;
+	Instances selectedinstances;
 	FeatureSelectors fSelector;
 	public MetricSelector(Instances source, FeatureSelectors fSelector){
-		instances = source;
 		this.fSelector = fSelector;
-	}
-	
-	public Instances getNewInstances(){
+		Instances instances = new Instances(source);
 		// select 15% of metrics
 		int numSelectedMetrics = (int) ((int)(instances.numAttributes()-1)*0.15);
 		if(numSelectedMetrics==0){
 			numSelectedMetrics=1;
 		}
+		selectedinstances = Utils.featureSelection(instances,numSelectedMetrics,fSelector);//featrueSelectionByChiSquare(instances,numSelectedMetrics)
+	}
 
-		return Utils.featureSelection(instances,numSelectedMetrics,fSelector);//featrueSelectionByChiSquare(instances,numSelectedMetrics);
+	public Instances getNewInstances(){
+		return selectedinstances;
 	}
 }
