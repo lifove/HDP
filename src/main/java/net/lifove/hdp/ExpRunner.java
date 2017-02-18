@@ -172,6 +172,9 @@ public class ExpRunner {
 						targetInstances.stratify(folds);
 						
 						for(int fold = 0; fold < folds; fold++){
+							
+							if(existingPrediciton.contains(repeat + "," +fold + "," + source + "," + target)) continue;
+							
 							String withinResult = "";
 							
 							String key = target + repeat + "," + fold; 
