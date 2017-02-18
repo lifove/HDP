@@ -4,11 +4,15 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 import net.lifove.hdp.util.Utils;
@@ -102,7 +106,18 @@ public class ExpRunner {
 		// key srcName-tarName value = HashMap<String,Double> (key=srcAttrIdx + "-" + tarAttrIdx, score)
 		HashMap<String,HashMap<String,Double>> matchingScoresByAttributeIndices = loadExsitingMatchingScores(pathToSavedMatchingScores,analyzer);
 		
-		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+		OpenOption openOpt = StandardOpenOption.CREATE;
+		HashSet<String> existingPrediciton = new HashSet<String>(); //"repeat,fold,Group/data.arff,group/data2.arff"
+		if(Files.exists(path, LinkOption.NOFOLLOW_LINKS)){
+			openOpt = StandardOpenOption.APPEND;
+			ArrayList<String> lines = Utils.getLines(path.toString(),false);
+			for(int i=0;i<lines.size()-1;i++){ // ignore the last line which might be corrupted.
+				String[] splitLine=lines.get(i).split(",");
+				existingPrediciton.add(splitLine[0]+","+splitLine[1]+","+splitLine[2]+","+splitLine[3]);
+			}
+		}
+		
+		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8,openOpt)) {
 			
 			for(String target:projects){
 				for(String source:projects){
