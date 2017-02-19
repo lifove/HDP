@@ -114,6 +114,9 @@ public class ExpRunner {
 			for(int i=0;i<lines.size()-1;i++){ // ignore the last line which might be corrupted.
 				String[] splitLine=lines.get(i).split(",");
 				existingPrediciton.add(splitLine[0]+","+splitLine[1]+","+splitLine[2]+","+splitLine[3]);
+				String key = splitLine[3] + splitLine[1] + "," + splitLine[2]; // target + repeat + "," + fold;
+				String withinResult = splitLine[5] + "," + splitLine[6] + "," + splitLine[7] +"," + splitLine[8];
+				withinResults.put(key, withinResult);
 			}
 		}
 		
