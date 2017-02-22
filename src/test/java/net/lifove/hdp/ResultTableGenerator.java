@@ -106,7 +106,7 @@ public class ResultTableGenerator {
 		sourceGroups.put("ar6","SOFTLAB");
 
 		String pathToResults = System.getProperty("user.home") + "/HDP/Results/";
-		String mlAlg = "weka.classifiers.functions.Logistic";
+		String mlAlg = "weka.classifiers.functions.SimpleLogistic";
 		
 		ArrayList<String> linesIFS = getLines(pathToResults + "IFS_results_" +mlAlg + ".txt",false);
 		ArrayList<String> linesCM = getLines(pathToResults + "HDP_common_metrics_" +mlAlg + ".txt",false);
@@ -120,7 +120,7 @@ public class ResultTableGenerator {
 		//for(double cutoff=0.05;cutoff<0.06;cutoff=cutoff+0.05){
 
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.Logistic",FeatureSelectors.GainRatio,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
 
 		// various FSs
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
@@ -132,19 +132,61 @@ public class ResultTableGenerator {
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
 				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.None,isWPDPWithFS);
 
+		// various Analyzers
+		/*
+  		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+				  0.05,"SCoAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+				  0.05,"PAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+                                  0.90,"KSAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+                                  0.90,"SCoAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+                                  0.90,"PAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+
 		// variius MLs
-		/*generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.SimpleLogistic",FeatureSelectors.GainRatio,isWPDPWithFS);
+		/*mlAlg = "weka.classifiers.functions.SimpleLogistic";
+		linesIFS = getLines(pathToResults + "IFS_results_" +mlAlg + ".txt",false);
+		linesCM = getLines(pathToResults + "HDP_common_metrics_" +mlAlg + ".txt",false);
+                linesCLAMI = getLines(pathToResults + "CLAMI_for_HDP_" + mlAlg + ".txt",false);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.bayes.BayesNet",FeatureSelectors.GainRatio,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+
+		mlAlg = "weka.classifiers.bayes.BayesNet";
+                linesIFS = getLines(pathToResults + "IFS_results_" +mlAlg + ".txt",false);
+                linesCM = getLines(pathToResults + "HDP_common_metrics_" +mlAlg + ".txt",false);
+                linesCLAMI = getLines(pathToResults + "CLAMI_for_HDP_" + mlAlg + ".txt",false);	
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.functions.SMO",FeatureSelectors.GainRatio,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+		
+		mlAlg = "weka.classifiers.functions.SMO";
+                linesIFS = getLines(pathToResults + "IFS_results_" +mlAlg + ".txt",false);
+                linesCM = getLines(pathToResults + "HDP_common_metrics_" +mlAlg + ".txt",false);
+                linesCLAMI = getLines(pathToResults + "CLAMI_for_HDP_" + mlAlg + ".txt",false);	
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.J48",FeatureSelectors.GainRatio,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+		
+		mlAlg = "weka.classifiers.trees.J48";
+                linesIFS = getLines(pathToResults + "IFS_results_" +mlAlg + ".txt",false);
+                linesCM = getLines(pathToResults + "HDP_common_metrics_" +mlAlg + ".txt",false);
+                linesCLAMI = getLines(pathToResults + "CLAMI_for_HDP_" + mlAlg + ".txt",false);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.LMT",FeatureSelectors.GainRatio,isWPDPWithFS);
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+		
+		mlAlg = "weka.classifiers.trees.LMT";
+                linesIFS = getLines(pathToResults + "IFS_results_" +mlAlg + ".txt",false);
+                linesCM = getLines(pathToResults + "HDP_common_metrics_" +mlAlg + ".txt",false);
+                linesCLAMI = getLines(pathToResults + "CLAMI_for_HDP_" + mlAlg + ".txt",false);
 		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
-				0.05,"KSAnalyzer","weka.classifiers.trees.RandomForest",FeatureSelectors.GainRatio,isWPDPWithFS);*/
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);
+		
+		mlAlg = "weka.classifiers.trees.RandomForest";
+                linesIFS = getLines(pathToResults + "IFS_results_" +mlAlg + ".txt",false);
+                linesCM = getLines(pathToResults + "HDP_common_metrics_" +mlAlg + ".txt",false);
+                linesCLAMI = getLines(pathToResults + "CLAMI_for_HDP_" + mlAlg + ".txt",false);
+		generate(orderedProjectName, pathToResults, linesIFS, linesCM, linesCLAMI, decForCutoff, dec,
+				0.05,"KSAnalyzer",mlAlg,FeatureSelectors.GainRatio,isWPDPWithFS);*/
 
 
 		//}
