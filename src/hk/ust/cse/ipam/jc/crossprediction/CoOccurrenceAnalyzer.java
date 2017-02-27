@@ -53,7 +53,8 @@ public class CoOccurrenceAnalyzer {
 	    ASAnalyzer, PCoAnalyzer, PCoAnalyzerUsingTargetLabel, TAnalyzer, PIAnalyzer,
 	    PKNAnalyzer,SKNAnalyzer,
 	    MultiAnalyzer,
-	    AEDAnalyzer, AL1DAnalyzer, SCoAnalyzer, SemiASAnalyzerPOS, SemiASAnalyzerNEG, SemiPCoAnalyzer, SemiASAnalyzer
+	    AEDAnalyzer, AL1DAnalyzer, SCoAnalyzer, SemiASAnalyzerPOS, SemiASAnalyzerNEG, SemiPCoAnalyzer, SemiASAnalyzer,
+	    CDAnalyzer
 	}
 	
 	CoOccurrenceAnalyzer(String analyzer,Instances sourceInstances, Instances targetInstances,
@@ -126,6 +127,9 @@ public class CoOccurrenceAnalyzer {
 				break;
 			case KSAnalyzer:
 				allMatchedAttributes = analyzeByKolmororovSmirnovTest();
+				break;
+			case CDAnalyzer:
+				allMatchedAttributes = analyzeByCliffDeltaEffectSize();
 				break;
 			case PCoAnalyzer:
 				allMatchedAttributes = analyzeByPearsonCorrealation(false);
@@ -210,6 +214,67 @@ public class CoOccurrenceAnalyzer {
 		//System.out.println(newTargetInstances.toString());
 		//System.exit(0);
 		
+	}
+
+	private ArrayList<MatchedAttribute> analyzeByCliffDeltaEffectSize(){
+		
+		ArrayList<MatchedAttribute> effSizes = new ArrayList<MatchedAttribute>();
+		
+		for(int s=0; s < sourceInstances.numAttributes(); s++){
+			// skip label
+			if(sourceInstances.attribute(sourceLabelName).index()==s)
+				continue;
+			
+			double[] sourceAttrValues = sourceInstances.attributeToDoubleArray(s);
+			
+			for(int t=0; t < targetInstances.numAttributes(); t++){
+				// ignore label attribute
+				if(t==targetInstances.classIndex())
+					continue;
+				
+				double[] targetAttrValues = targetInstances.attributeToDoubleArray(t);
+				
+				double effSize = 0.0;
+				 
+				try {
+					
+					// connect once
+					if(c==null){
+						c = new RConnection();
+						c.eval("library('effsize')");
+					}
+					
+					c.assign("treated", sourceAttrValues);
+					c.assign("control", targetAttrValues);
+					RList l = c.eval("cliff.delta(control,treated)").asList();
+					effSize = 1-Math.abs(l.at("estimate").asDouble()); // this value can be < 0
+
+					effSizes.add(new MatchedAttribute(s,t,effSize));
+					
+				} catch (RserveException e) {
+					//e.printStackTrace();
+					System.err.println("Turn on Rserve in R");
+					/*for(double value:sourceAttrValues){
+						System.out.print(value +  ",");
+					}
+					System.out.println();
+					for(double value:targetAttrValues){
+						System.out.print(value +  ",");
+					}
+					System.out.println();*/
+					System.exit(0);
+				} catch (REXPMismatchException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.exit(0);
+				} catch (REngineException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.exit(0);
+				}
+			}
+		}
+		return effSizes;
 	}
 
 	private ArrayList<MatchedAttribute> analyzeByKolmororovSmirnovTest() {

@@ -88,7 +88,7 @@ public class CoFeatureGenerator implements Runnable{
 		
 		String[] PROMISE = {"ant-1.3","arc","camel-1.0","poi-1.5","redaktor","skarbonka",
 			"tomcat","velocity-1.4","xalan-2.4","xerces-1.2"};
-		ProjectGroupInfo projectGroupPROMISE = new ProjectGroupInfo("data/promise/", "bug", "buggy", PROMISE);
+		ProjectGroupInfo projectGroupPROMISE = new ProjectGroupInfo("data/CK/", "bug", "buggy", PROMISE);
 		
 		String[] NASA = {"cm1","mw1","pc1","pc3","pc4"};
 		ProjectGroupInfo projectGroupNASA = new ProjectGroupInfo("data/NASA/", "Defective", "Y", NASA);
