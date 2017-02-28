@@ -263,7 +263,7 @@ public class WinTieLossByUtest {
 			
 			String adjustedPredictionForManualAUC = !fsOption.equals("")?prediction.replace(fsOption, ""):prediction;
 			
-			Double manualAUC = manualResultsByPrediction.size()==0?records.get("AUC_manual").equals("")?-1:Double.parseDouble(records.get("AUC_manual")):manualResultsByPrediction.containsKey(adjustedPredictionForManualAUC)?manualResultsByPrediction.get(adjustedPredictionForManualAUC):-1;
+			Double manualAUC = manualResultsByPrediction.size()==0?records.get("AUC_manual").equals("")?-1:Double.parseDouble(records.get("AUC_manual")):manualResultsByPrediction.containsKey(adjustedPredictionForManualAUC)?manualResultsByPrediction.get(adjustedPredictionForManualAUC):-1.0;
 			
 			if(!withinResults.containsKey(key)){
 				ArrayList<Double> withinAUCValues = new ArrayList<Double>();
