@@ -1,5 +1,6 @@
 package net.lifove.hdp;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,10 +28,13 @@ public class MetricMatcher {
 		Instances srcInstances = Utils.loadArff(sourceDataPath, srcLableName);
 		Instances tarInstances = Utils.loadArff(targetDataPath, tarLableName);
 		
+		String sourceName = sourceDataPath.substring(sourceDataPath.lastIndexOf(File.separator)+1,sourceDataPath.length());
+		String targetName = targetDataPath.substring(targetDataPath.lastIndexOf(File.separator)+1,targetDataPath.length());
+		
 		ArrayList<String> lines = new MetricMatcher(srcInstances,tarInstances,0.05,threadPoolSize).match();
 		
 		for(String line:lines){
-			System.out.println(line);
+			System.out.println(sourceName + ":" + targetName + "," + line);
 		}
 	}
 	
