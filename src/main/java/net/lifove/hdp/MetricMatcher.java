@@ -24,14 +24,15 @@ public class MetricMatcher {
 		String srcLableName = args[1];
 		String targetDataPath = args[2];
 		String tarLableName = args[3];
-		int threadPoolSize = Integer.parseInt(args[4]);
+		double cutoff = Double.parseDouble(args[4]);
+		int threadPoolSize = Integer.parseInt(args[5]);
 		Instances srcInstances = Utils.loadArff(sourceDataPath, srcLableName);
 		Instances tarInstances = Utils.loadArff(targetDataPath, tarLableName);
 		
 		String sourceName = sourceDataPath.substring(sourceDataPath.lastIndexOf(File.separator)+1,sourceDataPath.length());
 		String targetName = targetDataPath.substring(targetDataPath.lastIndexOf(File.separator)+1,targetDataPath.length());
 		
-		ArrayList<String> lines = new MetricMatcher(srcInstances,tarInstances,0.05,threadPoolSize).match();
+		ArrayList<String> lines = new MetricMatcher(srcInstances,tarInstances,cutoff,threadPoolSize).match();
 		
 		for(String line:lines){
 			System.out.println(sourceName + ":" + targetName + "," + line);
