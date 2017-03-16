@@ -74,6 +74,7 @@ public class ExpRunner {
 		String analyzer = args[5];
 		String ml = args[6]; //"weka.classifiers.functions.SimpleLogistic"
 		Boolean isWPDPWithFS = Boolean.parseBoolean(args[7]); // true of false;
+		int numThreadsForMatching = Integer.parseInt(args[8]);
 		
 		Runner runner = new Runner();
 		FeatureSelectors fSelector = null;
@@ -89,12 +90,12 @@ public class ExpRunner {
 			fSelector = FeatureSelectors.None;
 		
 		DecimalFormat dec = new DecimalFormat("0.00");
-		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, pathToSaveResults, fSelector, dec, cutoff,analyzer, ml, isWPDPWithFS);
+		conductExp(runner, projects, pathToDataset, pathToSavedMatchingScores, pathToSaveResults, fSelector, dec, cutoff,analyzer, ml, isWPDPWithFS,numThreadsForMatching);
 		
 	}
 	
 	private void conductExp(Runner runner, String[] projects, String pathToDataset, String pathToSavedMatchingScores,String pathToSaveResults,
-			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg, boolean isWPDPWithFS) {
+			FeatureSelectors fSelector, DecimalFormat dec, double cutoff,String analyzer, String mlAlg, boolean isWPDPWithFS,int numThreadsForMatching) {
 		
 		String strIsWPDPWithFS = isWPDPWithFS? "_WPDP_FS":"";
 		Path path = Paths.get(pathToSaveResults + "/HDP_C" + dec.format(cutoff) + "_" + fSelector.name()+ "_" + analyzer +  "_" + mlAlg + strIsWPDPWithFS + "_main.txt");
@@ -145,7 +146,7 @@ public class ExpRunner {
 					}
 					
 					HashMap<String,Double>  matchingScores = matchingScoresByAttributeIndices.size()!=0?
-							getMatchingScoresByAttributeNames(sourceName,targetName,sourceInstances,targetInstances,matchingScoresByAttributeIndices.get(sourceName + "-" +targetName)):null;
+							getMatchingScoresByAttributeNames(sourceName,targetName,sourceInstances,targetInstances,matchingScoresByAttributeIndices.get(sourceName + "-" +targetName)):new HashMap<String, Double>();
 					
 					if(!selectedSourceFeatures.containsKey(sourceName)){
 						MetricSelector mSelector = new MetricSelector(sourceInstances,fSelector);
@@ -168,7 +169,7 @@ public class ExpRunner {
 							matchingScores = getMatchingScoresBasedOnSelectedSrcAttributes(selectedSrcAttrNames,matchingScores);
 							strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,matchingScores).match();
 						}else{
-							strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,4).match();
+							strMatchedMetrics = new MetricMatcher(sourceInstances,targetInstances,cutoff,numThreadsForMatching).match();
 						}
 						mapMatchedMetrics.put(keyForMatchedMetrics, strMatchedMetrics);
 					}
