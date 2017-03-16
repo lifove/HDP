@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import net.lifove.hdp.util.MWBMatchingAlgorithm;
+import net.lifove.hdp.util.Utils;
 import weka.core.Instances;
 
 public class MetricMatcher {
@@ -16,6 +17,22 @@ public class MetricMatcher {
 	double cutoff;
 	int threadPoolSize=10;
 	HashMap<String,Double> matchingScores = new HashMap<String,Double>();
+	
+	public static void main(String[] args) {
+		String sourceDataPath = args[0];
+		String srcLableName = args[1];
+		String targetDataPath = args[2];
+		String tarLableName = args[3];
+		int threadPoolSize = Integer.parseInt(args[4]);
+		Instances srcInstances = Utils.loadArff(sourceDataPath, srcLableName);
+		Instances tarInstances = Utils.loadArff(targetDataPath, tarLableName);
+		
+		ArrayList<String> lines = new MetricMatcher(srcInstances,tarInstances,0.05,threadPoolSize).match();
+		
+		for(String line:lines){
+			System.out.println(line);
+		}
+	}
 	
 	public MetricMatcher(Instances source, Instances target, double cutoff, int threadPoolSize){
 		this.source = source;
